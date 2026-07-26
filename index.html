@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Collection</title>
+<style>
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface-2: #eeeeea;
+  --ink: #26241f;
+  --ink-soft: #6b675e;
+  --line: #dcdad4;
+  --copper: #a95f2b;
+  --copper-soft: #f0e2d5;
+  --danger: #a13333;
+  --ok: #3a7d44;
+  --chart-line: #a95f2b; /* validated for the light surface */
+  --shadow: 0 1px 3px rgba(38,36,31,.08), 0 4px 16px rgba(38,36,31,.06);
+  --shadow-lift: 0 4px 12px rgba(38,36,31,.12), 0 12px 32px rgba(38,36,31,.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1b18;
+    --surface: #26241f;
+    --surface-2: #2f2d27;
+    --ink: #ece9e2;
+    --ink-soft: #a39e92;
+    --line: #3a382f;
+    --copper: #d08c50;
+    --copper-soft: #3d2f22;
+    --danger: #d96c6c;
+    --ok: #7cb987;
+    --chart-line: #c48047; /* validated for the dark surface */
+    --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+    --shadow-lift: 0 4px 12px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; } /* our display rules must never resurrect hidden elements */
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 96px;
+}
+.serif, h1, h2, h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+/* grid browsing mode opens the page up on big screens */
+body.grid-view .wrap { max-width: 1320px; }
+body.grid-view .stats, body.grid-view .controls, body.grid-view .sortrow,
+body.grid-view #setsList, body.grid-view #wantsList { max-width: 640px; margin-left: auto; margin-right: auto; }
+body.grid-view .stats { margin-bottom: 18px; }
+
+header.site { padding: 24px 0 16px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+header.site h1 { font-size: 1.55rem; font-weight: 600; letter-spacing: .01em; margin: 0; text-wrap: balance; }
+.menu-btn {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+  border-radius: 8px; padding: 6px 12px; font-size: .85rem; cursor: pointer;
+}
+.menu-btn:hover { color: var(--ink); }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow); }
+.stat .label { font-size: .68rem; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-soft); margin-bottom: 2px; }
+.stat .value { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Controls */
+.controls { display: flex; gap: 8px; margin-bottom: 14px; }
+.controls input[type="search"] {
+  flex: 1; min-width: 0; background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+  border-radius: 10px; padding: 10px 14px; font-size: .95rem;
+}
+.controls select { background: var(--surface); border: 1px solid var(--line); color: var(--ink); border-radius: 10px; padding: 10px; font-size: .88rem; max-width: 40%; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--copper); outline-offset: 1px; }
+
+.sortrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+.sortrow .count { font-size: .82rem; color: var(--ink-soft); }
+.sortrow select { background: none; border: none; color: var(--copper); font-size: .82rem; padding: 4px; cursor: pointer; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+
+/* review queue: unattended batch/tray adds wait for a human once-over */
+.review-banner {
+  display: block; width: 100%; margin: 0 0 14px; padding: 10px 14px;
+  background: var(--copper-soft); color: var(--ink);
+  border: 1px solid var(--copper); border-radius: 12px;
+  font: inherit; font-weight: 600; text-align: left; cursor: pointer;
+}
+.review-banner:hover { box-shadow: var(--shadow); }
+.checkline { display: flex; align-items: center; gap: 10px; padding: 9px 2px; font-weight: 600; cursor: pointer; }
+.checkline input { width: 18px; height: 18px; accent-color: var(--copper); }
+.menu-btn.live-on { color: #d9534f; border-color: #d9534f; font-weight: 700; }
+/* desktop file import: drag-drop overlay + front/back pairing preview */
+.drop-overlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center;
+  background: rgba(20,17,13,.82); backdrop-filter: blur(2px); }
+.drop-overlay.on { display: flex; }
+.drop-overlay .drop-inner { border: 3px dashed var(--copper); border-radius: 20px; padding: 54px 76px; color: #fff;
+  font-size: 1.35rem; font-weight: 700; text-align: center; line-height: 1.6; }
+.fi-preview { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0; max-height: 46vh; overflow-y: auto; }
+.fi-coin { position: relative; display: flex; gap: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px; }
+.fi-coin img { width: 62px; height: 62px; object-fit: cover; border-radius: 6px; display: block; }
+.fi-coin .fi-num { position: absolute; top: -8px; left: -8px; background: var(--copper); color: #fff; border-radius: 50%;
+  width: 20px; height: 20px; font-size: .7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.fi-cell { position: relative; line-height: 0; cursor: pointer; }
+.fi-cell .fi-tag { position: absolute; bottom: 3px; right: 3px; font-size: .78rem; line-height: 1; background: rgba(0,0,0,.6); border-radius: 5px; padding: 1px 3px; }
+.fi-cell.fi-label img { outline: 2px solid #2f80ed; outline-offset: -2px; }
+.fi-shot { position: relative; display: block; line-height: 0; }
+.fi-shot .fi-x { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; border: none;
+  background: rgba(0,0,0,.72); color: #fff; font-size: .8rem; line-height: 1; cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center; }
+.fi-shot .fi-x:hover { background: #c0392b; }
+.tether-status { font-size: .85rem; color: var(--ink-soft); margin: 6px 0 2px; min-height: 1.1em; }
+.auto-import { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+.auto-import.on { border-color: #2e9e5b; background: rgba(46,158,91,.10); }
+.auto-row { display: flex; align-items: flex-start; gap: 12px; justify-content: space-between; }
+.auto-row .hint { margin: 3px 0 0; }
+.auto-row .btn { flex: none; min-width: 92px; }
+.auto-import.on #autoToggle { background: #2e9e5b; border-color: #2e9e5b; color: #fff; }
+.tether-setup { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; margin: 8px 0; }
+.tether-setup summary { cursor: pointer; font-weight: 600; font-size: .9rem; }
+.tether-setup[open] summary { margin-bottom: 8px; }
+.ftp-grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 8px 0; align-items: baseline; }
+.ftp-grid .ftp-k { color: var(--ink-soft); font-size: .82rem; }
+.ftp-grid .ftp-v { font-weight: 600; user-select: all; }
+.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.ftp-steps { margin: 8px 0; padding-left: 20px; font-size: .84rem; color: var(--ink-soft); }
+.ftp-steps li { margin: 4px 0; }
+/* batch processing progress — a 4-step bar so you can see what each coin is doing */
+.proc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.proc-head small { color: var(--ink-soft); font-size: .78rem; }
+.proc-steps { display: flex; gap: 4px; margin-top: 6px; }
+.proc-step {
+  flex: 1; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  text-align: center; padding: 3px 2px; border-radius: 5px;
+  background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--line);
+}
+.proc-step.done { background: var(--copper-soft); color: var(--copper); border-color: var(--copper); }
+.proc-step.active { background: var(--copper); color: #fff; border-color: var(--copper); animation: proc-pulse 1s ease-in-out infinite; }
+@keyframes proc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .proc-step.active { animation: none; } }
+@keyframes just-added {
+  0% { box-shadow: 0 0 0 3px var(--copper); background: var(--copper-soft); }
+  100% { box-shadow: 0 0 0 0 transparent; background: transparent; }
+}
+.just-added { animation: just-added 2.4s ease-out; border-radius: 14px; }
+.sc-conserved { color: #b98a3e; font-weight: 600; }
+.sc-conserved[hidden] { display: none; }
+.sc-about { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.sc-about[hidden] { display: none; }
+.sc-about .about-label { display: block; font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: 3px; }
+.sc-about .about-series { font-size: .88rem; line-height: 1.5; color: var(--ink-soft); }
+.sc-about .about-coin { font-size: .92rem; line-height: 1.55; color: var(--ink); background: var(--surface-2); border-radius: 10px; padding: 10px 12px; border-left: 3px solid var(--copper); }
+.sc-about .about-series[hidden], .sc-about .about-coin[hidden] { display: none; }
+.sc-about #scAboutBtn { align-self: flex-start; }
+.sc-originals { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.sc-originals[hidden] { display: none; }
+.sc-originals .orig-item { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 20px; padding: 4px 6px 4px 12px; font-size: .82rem; }
+.sc-originals .orig-item a { color: var(--copper); font-weight: 600; text-decoration: none; }
+.sc-originals .orig-x { background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: .9rem; padding: 0 4px; line-height: 1; }
+.mass-bar {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 10px 14px;
+  background: var(--surface-2); border: 1px solid var(--copper); border-radius: 12px;
+  position: sticky; top: 8px; z-index: 5;
+}
+.mass-bar span { font-weight: 700; margin-right: auto; }
+.coin.selected, .coin-tile.selected { outline: 2px solid var(--copper); outline-offset: -2px; background: var(--copper-soft); }
+.coin.selected .disc::after, .coin-tile.selected .tile-photo::after {
+  content: '✓'; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--copper); color: var(--surface); border-radius: 50%; font-weight: 800; font-size: .8rem;
+}
+.coin .disc, .coin-tile .tile-photo { position: relative; }
+.spec.empty span { opacity: .4; }
+/* review chips: assign the coin to its official issue with taps, not typing */
+.chip-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip-label { font-size: .8rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft, #888); min-width: 44px; }
+.mint-chip {
+  font: inherit; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; line-height: 1.15;
+}
+.mint-chip b { font-size: 1rem; }
+.mint-chip small { font-size: .68rem; opacity: .7; }
+.mint-chip.sel { border-color: var(--copper); background: var(--copper-soft); font-weight: 700; }
+.chip-row input#scYearIn { width: 110px; padding: 6px 10px; font: inherit; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); }
+.sc-catalog {
+  margin: 10px 0; padding: 10px 12px; border-left: 3px solid var(--copper);
+  background: var(--surface-2); border-radius: 0 10px 10px 0; font-size: .92rem;
+}
+.sc-catalog b { color: var(--copper); }
+/* Collections grid */
+.sets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; align-items: start; }
+.sets-grid .set-card { margin: 0; height: 100%; }
+.sets-grid .set-card .sub { display: none; }
+@media (hover: hover) {
+  .sets-grid .set-card:hover { border-color: var(--copper); box-shadow: var(--shadow); }
+}
+.set-card.dragging { opacity: .4; }
+.set-card.drag-over { outline: 2px dashed var(--copper); outline-offset: -2px; }
+/* Hunt grid */
+.hunt-grid .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.hunt-grid .slot { text-align: center; }
+.hunt-grid .want-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.hunt-grid .want-card { margin: 0; }
+.queue-banner { background: var(--surface-2); border-color: var(--line); }
+.queue-banner:hover { border-color: var(--copper); }
+.review-chip {
+  display: inline-block; padding: 1px 8px; border-radius: 999px;
+  background: var(--copper); color: var(--surface);
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+.coin-tile .review-chip { position: absolute; top: 8px; right: 8px; }
+#scReviewRow { align-items: center; }
+
+/* field locks: collector-verified facts, safe from re-identification */
+.lock-btn {
+  background: none; border: none; padding: 0 0 0 6px; cursor: pointer;
+  font-size: .85rem; line-height: 1; vertical-align: baseline; opacity: .45;
+}
+.lock-btn[aria-pressed="true"] { opacity: 1; }
+input.locked, select.locked {
+  border-color: var(--copper) !important;
+  background: var(--copper-soft);
+}
+.review-progress { color: var(--ink-soft); font-size: .85rem; font-variant-numeric: tabular-nums; margin-right: auto; }
+.tab {
+  background: none; border: none; padding: 8px 16px 10px; font-size: .92rem; font-weight: 600;
+  color: var(--ink-soft); cursor: pointer; font-family: inherit;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab.active { color: var(--copper); border-bottom-color: var(--copper); }
+
+/* Set cards */
+.set-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow); cursor: pointer;
+}
+.set-card:hover { border-color: var(--copper); }
+.set-card h3 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 600; }
+.set-card .sub { font-size: .8rem; color: var(--ink-soft); margin-top: 6px; }
+.set-progress { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+.set-progress .bar, .set-card .bar { flex: 1; height: 8px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.set-progress .fill, .set-card .fill { height: 100%; background: var(--copper); border-radius: 6px; }
+.set-progress span, .set-card .pct { font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Slot grid */
+.slot-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.slot {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+  border-radius: 20px; padding: 4px 12px; font-size: .78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.slot.filled { background: var(--copper-soft); border-color: var(--copper); color: var(--copper); }
+.slot.filled::before { content: '✓ '; }
+.slot:hover { border-color: var(--copper); }
+.slot.selected { outline: 2px solid var(--copper); }
+
+/* Coin cards */
+.coin {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow);
+  display: flex; gap: 14px; align-items: flex-start; cursor: pointer;
+}
+.coin:hover { border-color: var(--copper); }
+.coin .disc {
+  flex: none; width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, var(--copper-soft), var(--surface-2) 75%);
+  border: 1.5px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: .78rem; font-weight: 700; color: var(--copper); font-variant-numeric: tabular-nums;
+}
+.coin .disc img { width: 100%; height: 100%; object-fit: cover; }
+.coin .disc.rect { border-radius: 10px; } /* slabbed/cased coins get a rectangular tile, not a circle */
+.coin .body { flex: 1; min-width: 0; }
+.coin h3 { margin: 0 0 2px; font-size: 1.05rem; font-weight: 600; }
+.coin .meta { font-size: .8rem; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.coin .meta .grade { color: var(--copper); background: var(--copper-soft); padding: 0 7px; border-radius: 20px; font-weight: 600; font-size: .72rem; letter-spacing: .03em; }
+.coin .meta .finish-chip { color: #7ab8e8; background: rgba(122,184,232,.14); padding: 0 7px; border-radius: 20px; font-weight: 600; font-size: .72rem; letter-spacing: .03em; }
+.coin .notes { font-size: .82rem; color: var(--ink-soft); margin-top: 6px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.coin .right { flex: none; text-align: right; }
+.coin .qty { font-size: .78rem; color: var(--ink-soft); }
+.coin .qty b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.coin .val { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+/* Grid browsing view */
+#list.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.coin-tile {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px 10px 14px; text-align: center; cursor: pointer; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  position: relative; /* anchors the review chip */
+}
+.coin-tile:hover { border-color: var(--copper); }
+.coin-tile .tile-photo {
+  width: 110px; height: 110px; border-radius: 12px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 35% 30%, var(--copper-soft), var(--surface-2) 75%);
+  border: 1.5px solid var(--line);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 1rem; font-weight: 700; color: var(--copper); font-variant-numeric: tabular-nums;
+}
+.coin-tile .tile-photo.round { border-radius: 50%; }
+.coin-tile .tile-photo img { width: 100%; height: 100%; object-fit: cover; }
+.coin-tile h3 {
+  margin: 4px 0 0; font-size: .92rem; font-weight: 600; line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.coin-tile .tile-meta { font-size: .75rem; color: var(--ink-soft); }
+.coin-tile .tile-meta .grade { color: var(--copper); font-weight: 600; }
+.coin-tile .tile-val {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-weight: 600; font-size: .9rem; font-variant-numeric: tabular-nums; margin-top: auto;
+}
+.coin-tile .tile-qty { font-size: .72rem; color: var(--ink-soft); }
+
+/* Empty state */
+.empty { text-align: center; padding: 56px 20px; color: var(--ink-soft); }
+.empty .bigdisc {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px;
+  background: radial-gradient(circle at 35% 30%, var(--copper-soft), var(--surface-2) 75%);
+  border: 2px dashed var(--line); display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+}
+.empty h2 { color: var(--ink); font-size: 1.2rem; margin: 0 0 6px; font-weight: 600; }
+.empty p { margin: 0; font-size: .9rem; max-width: 36ch; margin-inline: auto; }
+
+/* FAB */
+.fab {
+  position: fixed; right: 20px; bottom: 24px; z-index: 30;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--copper); color: #fff; border: none; cursor: pointer;
+  font-size: 1.7rem; line-height: 1; box-shadow: var(--shadow-lift);
+  display: flex; align-items: center; justify-content: center;
+}
+.fab:active { transform: scale(.95); }
+@media (min-width: 700px) {
+  .fab { right: calc(50% - 320px + 20px); }
+  /* grid view widens the wrap to 1320px — the buttons follow its edge */
+  body.grid-view .fab { right: max(20px, calc(50% - 660px + 20px)); }
+}
+
+/* Sheets */
+.overlay {
+  position: fixed; inset: 0; background: rgba(20,18,14,.45); z-index: 40;
+  display: none; align-items: flex-end; justify-content: center;
+}
+.overlay.open { display: flex; }
+/* the crop sheet can open on top of the coin form — it must always win */
+#cropOverlay { z-index: 50; }
+.sheet {
+  background: var(--bg); width: 100%; max-width: 640px;
+  border-radius: 16px 16px 0 0; padding: 20px 20px 28px;
+  max-height: 90vh; overflow-y: auto; overscroll-behavior: contain;
+}
+@media (min-width: 700px) { .overlay { align-items: center; } .sheet { border-radius: 16px; padding-bottom: 20px; max-height: 92vh; } }
+.sheet h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 14px; }
+.sheet .section-label {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700;
+  color: var(--copper); margin: 18px 0 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px;
+}
+.sheet .section-label:first-of-type { margin-top: 4px; }
+
+.field { margin-bottom: 10px; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.frow3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.field label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: 3px; font-weight: 600; }
+.field input, .field select, .field textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+  border-radius: 9px; padding: 9px 12px; font-size: 16px; font-family: inherit;
+}
+.field textarea { resize: vertical; min-height: 60px; }
+.field input.ai-filled, .field select.ai-filled { border-color: var(--copper); background: color-mix(in srgb, var(--copper-soft) 40%, var(--surface)); }
+
+.actions { display: flex; gap: 10px; margin-top: 18px; }
+.btn { border-radius: 10px; padding: 12px 18px; font-size: .95rem; font-weight: 600; cursor: pointer; border: 1px solid var(--line); font-family: inherit; }
+.btn.primary { background: var(--copper); color: #fff; border-color: var(--copper); flex: 1; }
+.btn.primary:disabled { opacity: .55; cursor: default; }
+.btn.ghost { background: var(--surface); color: var(--ink); }
+.btn.danger { background: none; color: var(--danger); border-color: transparent; }
+.btn.small { padding: 7px 12px; font-size: .82rem; }
+
+/* Add chooser + option lists */
+.menu-list { display: flex; flex-direction: column; gap: 8px; }
+.menu-list button {
+  text-align: left; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px 16px; font-size: .95rem; font-weight: 600; color: var(--ink); cursor: pointer; font-family: inherit;
+}
+.menu-list button small { display: block; color: var(--ink-soft); font-size: .78rem; font-weight: 400; margin-top: 1px; }
+.menu-list button:hover { border-color: var(--copper); }
+/* the slot assign list is a utility list, not a menu — keep it dense */
+#assignList { gap: 6px; }
+#assignList button { padding: 7px 12px; font-size: .88rem; border-radius: 8px; }
+#assignList button small { display: inline; margin-left: 6px; font-size: .76rem; }
+#assignList button:disabled { opacity: .65; font-weight: 400; padding: 4px 12px; background: none; border: none; }
+.set-icon-row { align-items: center; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.btn.icon { padding: 6px 11px; min-width: 38px; font-size: 1rem; line-height: 1; }
+.slot-label { margin-left: auto; text-transform: none; letter-spacing: 0; font-size: .85rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slot .slot-x { border: none; background: none; color: var(--ink-soft); cursor: pointer; font-size: .8rem; padding: 0 0 0 6px; }
+.slot .slot-x:hover { color: var(--copper); }
+
+/* AI suggestion panel */
+.ai-panel {
+  background: var(--copper-soft); border: 1px solid var(--copper); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 14px; font-size: .87rem;
+}
+.ai-panel .ai-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+button.ai-head { width: 100%; background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: inherit; text-align: left; }
+.ai-panel .chev { color: var(--copper); font-size: .8rem; }
+.ai-panel.collapsed #aiBody { display: none; }
+.ai-panel.collapsed .ai-head { margin-bottom: 0; }
+.ai-panel.dupe { background: var(--surface); border-color: var(--line); }
+.ai-panel.dupe .ai-title { color: var(--ink-soft); }
+.ai-panel.dupe .match { margin: 6px 0; }
+.ai-panel.dupe .match b { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+.ai-panel.dupe .diff { color: var(--ink-soft); font-size: .8rem; }
+.ai-panel .ai-title { font-weight: 700; color: var(--copper); font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; }
+.ai-panel .conf { font-size: .72rem; font-weight: 700; padding: 1px 8px; border-radius: 20px; background: var(--surface); }
+.ai-panel .conf.high { color: var(--ok); }
+.ai-panel .conf.medium { color: var(--copper); }
+.ai-panel .conf.low { color: var(--danger); }
+.ai-panel p { margin: 4px 0; }
+.ai-panel a { color: var(--copper); font-weight: 600; }
+.ai-panel .cost { color: var(--ink-soft); font-size: .72rem; }
+
+/* Photos in form */
+.photo-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.photo-thumb { position: relative; width: 76px; height: 76px; }
+.photo-thumb img { width: 100%; height: 100%; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--line); display: block; cursor: pointer; }
+.photo-thumb img.round { border-radius: 50%; }
+.photo-thumb .kind { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+  font-size: .58rem; background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 8px; padding: 0 6px; white-space: nowrap; }
+.photo-thumb .rm {
+  position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--danger); color: #fff; border: 2px solid var(--bg); cursor: pointer;
+  font-size: .8rem; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.photo-add {
+  width: 76px; height: 76px; border-radius: 50%; border: 2px dashed var(--line);
+  background: var(--surface); color: var(--ink-soft); cursor: pointer; font-size: 1.4rem;
+}
+.photo-add:hover { border-color: var(--copper); color: var(--copper); }
+
+/* Crop screen */
+.seg-group { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg {
+  background: var(--surface); color: var(--ink-soft); border: none; padding: 8px 14px;
+  font-size: .84rem; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.seg.active { background: var(--copper); color: #fff; }
+.crop-stage { position: relative; width: 100%; touch-action: none; }
+.crop-stage canvas { display: block; width: 100%; border-radius: 12px; background: var(--surface-2); }
+.crop-controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.crop-controls label { font-size: .78rem; color: var(--ink-soft); font-weight: 600; }
+.crop-controls input[type="range"] { flex: 1; accent-color: var(--copper); }
+.hint { font-size: .8rem; color: var(--ink-soft); margin: 8px 0 0; }
+
+/* Busy / progress */
+.busy { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; font-size: .9rem; }
+.spinner {
+  width: 22px; height: 22px; border-radius: 50%; flex: none;
+  border: 3px solid var(--copper-soft); border-top-color: var(--copper);
+  animation: spin .9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } .fab:active { transform: none; } }
+
+/* Connect phone */
+.qr-box { text-align: center; padding: 8px 0; }
+.qr-box img { border-radius: 10px; border: 1px solid var(--line); background: #fff; padding: 6px; }
+.qr-box .url { font-family: Consolas, monospace; font-size: 1rem; margin: 10px 0 4px; color: var(--copper); font-weight: 700; }
+.qr-box p { font-size: .84rem; color: var(--ink-soft); margin: 6px auto; max-width: 40ch; }
+
+/* Wants */
+.want-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.want-card .body { flex: 1; min-width: 0; }
+.want-card h3 { margin: 0 0 2px; font-size: 1.02rem; font-weight: 600; }
+.want-card .details { font-size: .82rem; color: var(--ink-soft); }
+.want-card .price { font-size: .84rem; margin-top: 6px; background: var(--copper-soft); color: var(--copper);
+  border-radius: 8px; padding: 6px 10px; }
+.want-card .wbtns { display: flex; flex-direction: column; gap: 6px; flex: none; }
+.check-row { display: flex; align-items: center; gap: 8px; font-size: .88rem; color: var(--ink-soft); margin: 4px 0 10px; cursor: pointer; }
+.check-row input { accent-color: var(--copper); width: 17px; height: 17px; }
+
+/* Value history chart */
+.chart-wrap { position: relative; margin-bottom: 14px; }
+.chart-wrap canvas { width: 100%; display: block; }
+.chart-tip {
+  position: absolute; pointer-events: none; background: var(--ink); color: var(--bg);
+  font-size: .75rem; padding: 4px 9px; border-radius: 7px; white-space: nowrap; transform: translate(-50%, -130%);
+  font-variant-numeric: tabular-nums;
+}
+.history-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.history-table td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.history-table td:last-child { text-align: right; font-variant-numeric: tabular-nums;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-weight: 600; }
+.history-table tr:last-child td { border-bottom: none; }
+
+/* Ask Claude */
+.header-btns { display: flex; gap: 8px; }
+#askOverlay { z-index: 52; } /* may open on top of the coin form */
+.btn-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.ask-sheet { display: flex; flex-direction: column; }
+.chat-log { overflow-y: auto; max-height: 45vh; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.chat-log:empty { display: none; }
+.msg { padding: 10px 14px; border-radius: 12px; font-size: .9rem; max-width: 92%; white-space: pre-wrap; }
+.msg.q { align-self: flex-end; background: var(--copper); color: #fff; border-bottom-right-radius: 4px; }
+.msg.a { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg .cost { display: block; margin-top: 6px; color: var(--ink-soft); font-size: .7rem; }
+.ask-row { display: flex; gap: 8px; align-items: flex-end; }
+.ask-row textarea {
+  flex: 1; background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+  border-radius: 10px; padding: 10px 12px; font-size: 16px; font-family: inherit; resize: none;
+}
+.ask-row .btn { flex: none; }
+
+/* Showcase */
+.sc-photos { display: flex; gap: 14px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+.sc-photos img { width: 225px; height: 225px; object-fit: cover; border-radius: 50%; border: 2px solid var(--line); }
+.sc-photos img.rect { border-radius: 14px; height: auto; max-height: 315px; width: auto; max-width: 240px; }
+/* desktop review/edit: the coin photos double up (still sharp — crops are 1400px),
+   the sheet widens to keep front+back side by side, the text stays a centered column */
+@media (min-width: 700px) {
+  #showcaseOverlay .sheet { max-width: 980px; }
+  #showcaseOverlay .sheet > * { max-width: 640px; margin-inline: auto; }
+  #showcaseOverlay .sc-photos { max-width: none; }
+  #showcaseOverlay .sc-photos img { width: 450px; height: 450px; }
+  #showcaseOverlay .sc-photos img.rect { width: auto; height: auto; max-height: 560px; max-width: 440px; }
+}
+/* two photos should still sit side by side on a phone */
+@media (max-width: 520px) { .sc-photos img { width: min(225px, 44vw); height: min(225px, 44vw); } }
+/* per-photo manual straighten nudge */
+.sc-photo { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.sc-rot { display: flex; gap: 5px; }
+.sc-rotbtn { font-size: .74rem; padding: 3px 9px; border-radius: 7px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--ink-soft); cursor: pointer; line-height: 1; font-weight: 600; }
+.sc-rotbtn:hover { background: var(--copper); color: #fff; border-color: var(--copper); }
+.sc-rotbtn:disabled { opacity: .5; cursor: default; }
+/* toggleable center crosshair guides (quarter the coin, to help straighten) */
+.sc-imgwrap { position: relative; display: inline-block; line-height: 0; }
+.sc-cross { position: absolute; inset: 0; pointer-events: none; display: none; }
+.sc-photos.guides .sc-cross { display: block; }
+.sc-cross::before, .sc-cross::after { content: ''; position: absolute; background: rgba(45, 225, 255, 0.72); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .35); }
+.sc-cross::before { left: 50%; top: 0; bottom: 0; width: 1px; margin-left: -.5px; }
+.sc-cross::after { top: 50%; left: 0; right: 0; height: 1px; margin-top: -.5px; }
+#scGuidesBtn.on, #lhCaptureBtn.on, #lhCapModeBtn.on { background: var(--copper); color: #fff; border-color: var(--copper); }
+.lh-shutter { width: 100%; margin-top: 8px; padding: 13px; font-size: 1.02rem; }
+.lh-flash::after { content: ''; position: absolute; inset: 0; background: #fff; opacity: .0; animation: lhflash .18s ease-out; pointer-events: none; z-index: 5; }
+@keyframes lhflash { 0% { opacity: .55; } 100% { opacity: 0; } }
+
+/* Review tab — the scanner's capture inbox, as photo-forward cards */
+#reviewList { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; align-items: start; }
+.cap-card { position: relative; display: flex; flex-direction: column; background: var(--surface-2); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; cursor: pointer; transition: border-color .12s, box-shadow .12s, transform .06s; }
+.cap-card:hover { border-color: var(--copper); }
+.cap-card:active { transform: scale(.995); }
+.cap-card:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.cap-card.selected { border-color: var(--copper); box-shadow: inset 0 0 0 2px var(--copper); }
+.cap-check { position: absolute; top: 9px; left: 9px; z-index: 2; width: 24px; height: 24px; border-radius: 999px; border: 2px solid #fff; background: rgba(0,0,0,.5); color: #fff; display: grid; place-items: center; font-size: .8rem; font-weight: 800; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.cap-card.selected .cap-check { background: var(--copper); border-color: var(--copper); }
+.cap-imgs { display: flex; gap: 3px; background: var(--line); }
+.cap-fig { flex: 1; min-width: 0; margin: 0; position: relative; background: #000; }
+.cap-fig img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #000; }
+.cap-fig figcaption { position: absolute; left: 7px; bottom: 7px; font-size: .6rem; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.8); background: rgba(0,0,0,.5); padding: 1px 7px; border-radius: 6px; }
+.cap-noimg { width: 100%; aspect-ratio: 2; display: grid; place-items: center; font-size: 2.4rem; background: #000; }
+.cap-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 9px; }
+.cap-top { display: flex; align-items: center; gap: 8px; }
+.cap-denomchip { margin-left: auto; font-size: .78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft); white-space: nowrap; }
+.cap-denomchip.none { font-style: italic; opacity: .7; }
+.cap-band { display: inline-block; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.cap-band.b-high { background: rgba(63,125,84,.20); color: #4caf72; }
+.cap-band.b-medium { background: rgba(199,154,58,.20); color: #d0a23a; }
+.cap-band.b-low { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--line); }
+.cap-band.b-unknown { color: var(--ink-soft); border: 1px dashed var(--line); }
+.cap-guess { margin: 0; font-size: 1.04rem; font-weight: 700; line-height: 1.25; }
+.cap-guess em { color: var(--ink-soft); font-weight: 500; font-size: .95rem; }
+.cap-learned { color: var(--copper); font-weight: 600; }
+/* scouting verdict + dupe flags */
+.cap-flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.cap-verdict { display: inline-block; font-size: .74rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.cap-verdict.v-have { background: rgba(63,125,84,.20); color: #4caf72; }
+.cap-verdict.v-need { background: rgba(169,95,43,.22); color: var(--copper); }
+.cap-verdict.v-unknown { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--line); }
+.cap-dupe { display: inline-block; font-size: .74rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(199,154,58,.18); color: #d0a23a; }
+.cv-dupe-note { margin: 6px 0 0; font-size: .82rem; color: #d0a23a; }
+#reviewSelectBtn.on { background: var(--copper); color: #fff; border-color: var(--copper); }
+#reviewSelectBtn.on { background: var(--copper); color: #fff; border-color: var(--copper); }
+
+/* Full-size capture viewer */
+.cap-view { max-width: 720px; }
+.cv-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.cv-imgs { display: flex; gap: 6px; background: var(--line); border-radius: 12px; overflow: hidden; }
+.cv-fig { flex: 1; min-width: 0; margin: 0; position: relative; background: #000; }
+.cv-fig img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #000; cursor: zoom-in; }
+.cv-fig figcaption { position: absolute; left: 9px; bottom: 9px; font-size: .66rem; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.85); background: rgba(0,0,0,.5); padding: 2px 9px; border-radius: 7px; }
+
+/* photo peek: tap a coin photo to fill the screen for a close look, tap again to shrink back.
+   Sits above every sheet but below #pinOverlay (70) so the lock still outranks it. */
+.imgzoom { position: fixed; inset: 0; z-index: 65; background: #000; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+.imgzoom[hidden] { display: none; }
+.imgzoom img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.imgzoom-hint {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  font-size: .72rem; color: rgba(255,255,255,.75); background: rgba(0,0,0,.55);
+  padding: 5px 13px; border-radius: 999px; pointer-events: none; white-space: nowrap;
+}
+.cv-meta { display: flex; align-items: center; gap: 10px; margin: 14px 0 6px; }
+.cv-meta .cap-denom { margin-left: auto; font-size: .9rem; padding: 5px 9px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.cv-namelabel { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin-bottom: 5px; }
+.cv-swap { margin-top: 8px; }
+.cv-name { width: 100%; padding: 11px 13px; font-size: 1.05rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
+.cv-id { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
+.cv-idrow { display: flex; align-items: center; gap: 10px; }
+.cv-idlabel { flex: 0 0 58px; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); }
+.cv-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.cv-chip { min-width: 34px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 700; font-size: .9rem; cursor: pointer; }
+.cv-chip.on { background: var(--copper); color: #fff; border-color: var(--copper); }
+.cv-field { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--ink); font-size: .95rem; }
+.cv-actions { display: flex; gap: 10px; margin-top: 14px; }
+.cv-actions .btn { flex: 1; }
+.cv-actions .btn.ghost { flex: 0 0 auto; }
+
+/* review controls + Close/Edit pinned to the bottom of the sheet so they sit in
+   the same spot for every coin during a review pass */
+.sc-footer {
+  position: sticky; bottom: -28px; z-index: 3;
+  background: var(--bg); border-top: 1px solid var(--line);
+  margin: 14px -20px -28px; padding: 10px 20px 28px;
+}
+.sc-footer .actions { margin-top: 8px; }
+
+/* "Do I have it?" — big side-by-side: fresh snap vs the specimen you own */
+.have-compare {
+  display: flex; gap: 10px; margin: 6px 0 14px;
+}
+.have-compare figure { flex: 1; margin: 0; min-width: 0; text-align: center; }
+.have-compare img {
+  width: 100%; aspect-ratio: 1; object-fit: cover;
+  border-radius: 12px; border: 2px solid var(--line); cursor: zoom-in;
+}
+.have-compare figcaption { font-size: .78rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* spares: duplicates kept for trading */
+.spare-chip {
+  display: inline-block; padding: 1px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--line);
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+.coin-tile .tile-spare { position: absolute; top: 8px; left: 8px; }
+
+/* reference library manager */
+.ref-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+.ref-item { margin: 0; text-align: center; }
+.ref-item img { width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 2px solid var(--line); }
+.ref-item figcaption { font-size: .7rem; color: var(--ink-soft); margin: 2px 0 4px; }
+.ref-btns { display: flex; gap: 4px; justify-content: center; }
+.ref-btns button {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 8px; padding: 2px 7px; font-size: .72rem; cursor: pointer;
+}
+.ref-btns button:last-child { color: var(--danger); }
+
+/* continuous "Do I have it?" scanner */
+/* the stage is sized by JS to the camera stream's real aspect — no letterbox.
+   Kept modest on purpose: Done + the live verdict must fit below WITHOUT
+   scrolling (display size only — captures stay full resolution) */
+.lh-stage { position: relative; border-radius: 14px; overflow: hidden; background: #000; height: 34vh; }
+.lh-stage video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.lh-actions { margin: 10px 0 6px; }
+/* recent checks scroll inside their own box — they never push the page */
+#lhLog { max-height: 24vh; overflow-y: auto; }
+
+/* Studio capture: fullscreen stand-mode camera. Landscape = viewfinder left
+   (full height, sides cropped for display only), controls column right.
+   Portrait = same controls restacked below; text never rotates. */
+.overlay.studio.open { display: block; padding: 0; background: #000; }
+.studio-wrap { display: flex; width: 100dvw; height: 100dvh; overflow: hidden; }
+/* min-width/height 0: without them the video's natural size wins the flex
+   fight and shoves the controls clean off the screen (the portrait bug) */
+.studio-view { position: relative; flex: 1; min-width: 0; min-height: 0; background: #000; }
+.studio-view video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.st-res {
+  position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 8px;
+  background: rgba(0,0,0,.55); color: #fff; font-size: .72rem;
+}
+.st-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.st-flash.on { opacity: .7; transition: none; }
+.st-count {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 6rem; font-weight: 800; color: #fff; text-shadow: 0 0 24px rgba(0,0,0,.8);
+  pointer-events: none;
+}
+.st-count[hidden] { display: none; }
+/* hairline crosshair — a centering aid, faint enough to ignore */
+.st-cross { position: absolute; inset: 0; pointer-events: none; }
+.st-cross::before, .st-cross::after {
+  content: ''; position: absolute; background: rgba(255,255,255,.45);
+  box-shadow: 0 0 2px rgba(0,0,0,.5);
+}
+.st-cross::before { left: 50%; top: 12%; bottom: 12%; width: 1px; transform: translateX(-.5px); }
+.st-cross::after { top: 50%; left: 12%; right: 12%; height: 1px; transform: translateY(-.5px); }
+/* tap-to-focus feedback: a ring that blooms where you tapped */
+.st-focus-ring {
+  position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  border: 2px solid rgba(255,255,255,.95); border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0,0,0,.6), inset 0 0 6px rgba(0,0,0,.4);
+  pointer-events: none; opacity: 0;
+}
+.st-focus-ring.on { animation: st-focus .85s ease-out; }
+@keyframes st-focus {
+  0% { opacity: 0; transform: scale(1.5); }
+  18% { opacity: 1; }
+  55% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .st-focus-ring.on { animation-duration: .01s; } }
+/* temporary test-shot mode */
+.st-testbtn.active { border-color: #e0b64e; background: rgba(224,182,78,.18); color: #e0b64e; }
+.st-testbadge {
+  position: absolute; top: 8px; left: 8px; z-index: 5;
+  background: rgba(224,182,78,.9); color: #1a1712; font-weight: 800; font-size: .72rem;
+  padding: 3px 9px; border-radius: 7px; box-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+.st-testbadge[hidden] { display: none; }
+/* year picker: a slim strip down the RIGHT EDGE of the camera view — the
+   capture controls stay visible and usable while it's open */
+.st-years {
+  position: absolute; top: 0; right: 0; bottom: 0; width: clamp(96px, 20%, 140px);
+  display: flex; flex-direction: column; gap: 6px; padding: 8px; z-index: 4;
+  background: rgba(15, 13, 11, .35); backdrop-filter: blur(1.5px);
+}
+.st-years[hidden] { display: none; }
+.st-years-head { display: flex; align-items: center; justify-content: space-between; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.st-years-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+.st-year {
+  font: inherit; font-weight: 700; text-align: center; padding: 7px 6px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.35); border-radius: 9px;
+  background: rgba(0,0,0,.32); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.7);
+}
+.st-year.owned { border-color: var(--copper); }
+.st-year.owned::after { content: ' ✓'; color: var(--copper); }
+.st-year.sel { background: rgba(169, 95, 43, .5); border-color: var(--copper); }
+/* order intake cards: year-mint on top, variety/series whisper under it */
+.st-year.st-order { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 4px; }
+.st-year.st-order b { font-size: .85rem; line-height: 1.1; }
+.st-year.st-order small { font-size: .58rem; font-weight: 400; opacity: .85; line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-order-empty { color: #fff; text-align: center; font-size: .75rem; padding: 10px 4px; opacity: .85; text-shadow: 0 1px 2px rgba(0,0,0,.7); }
+/* denomination chips: terse, sticky, top of the controls column */
+.st-denoms { display: flex; gap: 5px; flex-wrap: wrap; }
+.st-denom {
+  flex: 1; min-width: 40px; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer;
+  padding: 6px 4px; border-radius: 8px; border: 1.5px solid var(--line);
+  background: var(--surface-2); color: var(--ink); text-align: center;
+}
+.st-denom.sel { border-color: var(--copper); background: var(--copper-soft); }
+.studio-controls {
+  flex: 0 0 clamp(150px, 26vw, 240px); display: flex; flex-direction: column;
+  gap: 10px; padding: 12px; background: var(--surface); box-sizing: border-box;
+}
+.st-row { display: flex; gap: 8px; }
+.st-row .btn { flex: 1; }
+.st-sides { display: flex; gap: 8px; flex: 1; min-height: 0; }
+.st-side {
+  flex: 1; font: inherit; font-weight: 700; border-radius: 12px; cursor: pointer;
+  border: 2px solid var(--line); background: var(--surface-2) center/cover; color: var(--ink);
+  text-shadow: 0 0 6px var(--surface-2);
+}
+.st-side.active { border-color: var(--copper); background-color: var(--copper-soft); }
+.st-side.filled::after { content: ' ✓'; }
+.st-capture {
+  flex: 1.2; font-size: 2.4rem; border-radius: 16px; cursor: pointer;
+  border: none; background: var(--copper); color: var(--surface);
+}
+.st-capture:active { filter: brightness(1.15); }
+@media (orientation: portrait) {
+  .studio-wrap { flex-direction: column; }
+  .studio-view { flex: 1; }
+  .studio-controls { flex: 0 0 auto; height: 34dvh; flex-direction: column; }
+  .st-sides { flex-direction: row; }
+}
+/* the continuous scanner wears the studio suit: verdict + log live in the
+   controls column and scroll there, never past the screen */
+.lh-controls { overflow: hidden; }
+.lh-controls .lh-verdict { margin: 0; font-size: .85rem; }
+.lh-controls #lhLog { flex: 1; min-height: 0; max-height: none; overflow-y: auto; }
+.lh-controls .have-row { font-size: .78rem; }
+.lh-ring {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(86%, 50vh); aspect-ratio: 1; border-radius: 50%;
+  border: 3px dashed rgba(255,255,255,.75); pointer-events: none;
+  transition: border-color .2s;
+}
+.lh-ring.warn { border-color: #e0b64e; border-style: solid; }
+.lh-ring.have { border-color: #7cb987; border-style: solid; }
+.lh-ring.need { border-color: #e0b64e; border-style: solid; }
+.lh-ring.unknown { border-color: rgba(255,255,255,.75); }
+/* bottom overlay: tappable verdict card stacked over a bigger status line */
+.lh-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; z-index: 4; }
+.lh-status {
+  padding: 11px 14px; background: rgba(0,0,0,.62); color: #fff;
+  font-size: 1rem; line-height: 1.3; text-align: center;
+}
+/* icon bar moved to the TOP so the verdict/status own the bottom */
+.lh-iconbar {
+  position: absolute; left: 0; right: 0; top: 10px;
+  display: flex; justify-content: center; align-items: center; gap: 34px;
+  pointer-events: none; z-index: 4;
+}
+.lh-iconbar .lh-icon {
+  pointer-events: auto; background: none; border: none; padding: 2px 6px;
+  font-size: 1.9rem; line-height: 1; color: #fff; cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.9)) drop-shadow(0 0 6px rgba(0,0,0,.5));
+  min-width: 1.4em; text-align: center;
+}
+.lh-icon.have { color: #7cb987; }
+.lh-icon.need { color: #ffd76e; }
+.lh-icon.unknown { color: #ffffffcc; }
+.lh-icon.better { color: #7cb987; }
+.lh-icon.worse { color: #ff9d76; }
+.lh-icon.similar { color: #ffffffcc; }
+/* verdict card sits ON the camera view, big and tappable */
+.lh-verdict {
+  display: block; width: 100%; text-align: left; cursor: pointer; font: inherit;
+  margin: 0; padding: 12px 16px; border: none; border-top: 4px solid rgba(255,255,255,.5);
+  background: rgba(0,0,0,.74); color: #fff;
+}
+.lh-verdict .lhv-head { display: block; font-size: 1.06rem; font-weight: 800; }
+.lh-verdict .lhv-id { display: block; font-size: .9rem; opacity: .9; margin-top: 1px; }
+.lh-verdict .lhv-detail {
+  display: block; font-size: .9rem; margin-top: 5px; color: #ffe6ad; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lh-verdict .lhv-more { display: inline-block; margin-top: 6px; font-size: .78rem; font-weight: 700; letter-spacing: .03em; opacity: .85; }
+.lh-verdict.have { border-top-color: var(--ok); }
+.lh-verdict.need { border-top-color: #ffd76e; background: rgba(58,44,10,.82); }
+.lh-verdict.unknown { border-top-color: rgba(255,255,255,.6); }
+#lhLog { margin-top: 8px; }
+/* grow-the-gallery harvest review */
+.hv-run { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.hv-run input, .hv-run select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
+.hv-run #hvType { flex: 1; min-width: 150px; }
+.hv-run #hvLimit { width: 4.6em; }
+.hv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 12px 0; max-height: 56vh; overflow-y: auto; }
+.hv-cell { position: relative; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; background: #000; }
+.hv-cell.keep { border-color: var(--copper); }
+.hv-cell.promoted { opacity: .45; }
+.hv-cell img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #000; }
+.hv-pick { position: absolute; top: 6px; left: 6px; display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,.6); padding: 2px 8px 2px 5px; border-radius: 999px; cursor: pointer; }
+.hv-pick input { width: 16px; height: 16px; margin: 0; }
+.hv-score { color: #fff; font-size: .74rem; font-weight: 700; }
+.hv-score.b-high { color: #7cdb97; }
+.hv-side { width: 100%; border: none; border-top: 1px solid var(--line); padding: 5px; background: var(--surface); color: var(--ink); font-size: .82rem; }
+
+/* full verdict details sheet */
+.lhv-sheet-head { margin: 0 0 10px; }
+.lhv-sheet-head.need { color: #c8912f; }
+.lhv-sheet-body { white-space: pre-wrap; line-height: 1.5; max-height: 60vh; overflow-y: auto; color: var(--ink); }
+.have-row.tappable { cursor: pointer; }
+.have-row.tappable:hover { border-color: var(--copper); }
+/* the comparison must stack ABOVE the scanner overlay */
+#scanCompareOverlay { z-index: 60; }
+/* review dupe warning + Hunt tab */
+.dupe-warn {
+  display: block; width: 100%; margin-bottom: 8px; padding: 8px 12px;
+  background: var(--copper-soft); border: 1px solid var(--copper); border-radius: 12px;
+  color: var(--ink); font: inherit; font-size: .85rem; text-align: left; cursor: pointer;
+}
+.hunt-missing { margin-bottom: 18px; }
+.inc-group { margin-top: 10px; }
+.inc-sub { font-size: .72rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .03em; margin: 0 0 5px 2px; }
+.slot-tap { cursor: pointer; font: inherit; font-size: .8rem; }
+.slot-tap:hover { border-color: var(--copper); }
+.hunt-head { display: flex; justify-content: space-between; align-items: center; }
+.hunt-head b { font-size: .95rem; }
+
+/* the scan check gets its own home-screen button above the + — same size, stacked */
+.fab-scan { bottom: 96px; font-size: 1.45rem; }
+.have-row .facts { display: block; color: var(--ink-soft); }
+.have-row .facts.hot { color: var(--copper); font-weight: 600; }
+
+/* Ask Claude: photo attach + coin card bubble */
+.ask-photo-strip {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  padding: 6px 10px; border: 1px dashed var(--line); border-radius: 12px;
+}
+.ask-photo-strip img { width: 44px; height: 44px; object-fit: cover; border-radius: 50%; }
+.msg.coin-msg { border-left: 3px solid var(--copper); }
+.msg.coin-msg b { display: block; }
+.msg.coin-msg small { display: block; color: var(--ink-soft); }
+.msg.coin-msg .btn { margin-top: 8px; }
+
+.lh-num {
+  align-self: center; min-width: 1.8em; text-align: center;
+  font-weight: 700; color: var(--copper); font-variant-numeric: tabular-nums;
+}
+#showcaseOverlay h2 { text-align: center; margin-bottom: 2px; }
+#scSub { text-align: center; margin: 0 0 12px; }
+.sc-values { display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+.sc-values .pill { background: var(--copper-soft); color: var(--copper); font-weight: 700;
+  border-radius: 20px; padding: 4px 14px; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.sc-values .pill.muted { background: var(--surface-2); color: var(--ink-soft); }
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-bottom: 14px; }
+.spec-grid .spec b { display: block; font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+.spec-grid .spec span { font-size: .92rem; }
+.spec-grid .spec-empty-note { grid-column: 1 / -1; font-size: .74rem; color: var(--ink-soft); opacity: .7; margin-top: 6px; line-height: 1.4; }
+
+/* Roll hunt */
+.roll-log { margin-top: 14px; max-height: 32vh; overflow-y: auto; font-size: .86rem; }
+.roll-log div { padding: 6px 4px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
+.roll-log b { font-variant-numeric: tabular-nums; color: var(--copper); }
+
+/* Batch camera session */
+.batch-shots { display: flex; gap: 12px; }
+.shot-btn {
+  flex: 1; aspect-ratio: 1; max-height: 170px; border-radius: 14px; border: 2px dashed var(--line);
+  background: var(--surface) center/cover no-repeat; color: var(--ink-soft); cursor: pointer;
+  font: inherit; font-size: 1.6rem; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px;
+}
+.shot-btn span { font-size: .85rem; font-weight: 600; }
+.shot-btn.filled { border-style: solid; border-color: var(--copper); color: transparent; text-shadow: none; }
+.shot-btn.filled span { visibility: hidden; }
+.shot-btn:hover { border-color: var(--copper); }
+
+/* Batch + trash lists reuse .menu-list; status colors */
+.status-ok { color: var(--ok); }
+.status-err { color: var(--danger); }
+
+/* Dashboard */
+.dash-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.dash-tiles .stat .value.gain { color: var(--ok); }
+.dash-tiles .stat .value.loss { color: var(--danger); }
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: .82rem; }
+.bar-row .lbl { width: 110px; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .track { flex: 1; height: 12px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+.bar-row .fill { height: 100%; background: var(--chart-line); border-radius: 6px 0 0 6px; }
+.bar-row .num { flex: none; width: 62px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+
+/* Want alert */
+.want-card.alert { border-color: var(--ok); }
+.want-card .alert-note { font-size: .84rem; margin-top: 6px; background: color-mix(in srgb, var(--ok) 14%, var(--surface)); color: var(--ok);
+  border-radius: 8px; padding: 6px 10px; font-weight: 600; }
+.want-card .alert-sources { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.want-card .alert-sources a { font-size: .78rem; font-weight: 600; color: var(--ok); text-decoration: underline; word-break: break-word; }
+.tab .badge { background: var(--ok); color: #fff; border-radius: 12px; font-size: .68rem; padding: 0 6px; margin-left: 4px; }
+
+/* Do I have it? */
+.have-row { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; }
+.have-row img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--line); flex: none; }
+.have-row .vbody { flex: 1; min-width: 0; font-size: .88rem; }
+.have-row .vbody small { display: block; color: var(--ink-soft); font-size: .78rem; }
+.have-row .verdict { font-weight: 700; }
+.have-row.have { border-color: var(--ok); } .have-row.have .verdict { color: var(--ok); }
+.have-row.need { border-color: var(--copper); } .have-row.need .verdict { color: var(--copper); }
+.have-row.unknown .verdict { color: var(--ink-soft); }
+
+/* Varieties list */
+.variety { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; font-size: .87rem; background: var(--surface); }
+.variety b { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+.variety .diag { color: var(--ink-soft); margin-top: 4px; }
+.variety .visible { font-weight: 700; color: var(--copper); }
+
+/* PIN + log */
+#pinOverlay { z-index: 70; } /* the lock outranks every other sheet */
+.history-table-wrap { max-height: 55vh; overflow-y: auto; }
+#logTable td:first-child { white-space: nowrap; color: var(--ink-soft); font-size: .78rem; vertical-align: top; }
+#logTable td:last-child { font-family: Consolas, monospace; font-size: .78rem; text-align: left; font-weight: 400; word-break: break-word; }
+.offline-banner {
+  background: var(--copper-soft); color: var(--copper); font-size: .82rem; font-weight: 600;
+  text-align: center; padding: 6px 12px; border-radius: 8px; margin-bottom: 12px;
+}
+
+/* Toast */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 96px; z-index: 60;
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 10px;
+  font-size: .88rem; box-shadow: var(--shadow-lift);
+  opacity: 0; pointer-events: none; transition: opacity .25s; max-width: 90vw; text-align: center;
+}
+.toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+/* Inbox draft cards (redesign step 7): pipeline output awaiting File-it — visually
+   distinct from the TRAINING capture cards below them */
+.inbox-drafts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.draft-card { display: flex; align-items: center; gap: 12px; background: var(--surface-2); border: 1px solid var(--line);
+  border-left: 4px solid var(--copper); border-radius: 10px; padding: 10px 12px; }
+.draft-card img { width: 64px; height: 64px; object-fit: cover; border-radius: 50%; background: #000; flex: none; }
+.draft-noimg { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex: none; }
+.draft-body { flex: 1; min-width: 0; }
+.draft-body b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draft-body small { color: var(--ink-soft); }
+.draft-verbs { display: flex; gap: 6px; flex: none; }
+
+/* Intake is a desktop surface (redesign step 8) — the phone checks and browses, never ingests */
+@media (max-width: 700px) { .desktop-only { display: none !important; } }
+.intake-view { max-width: 640px; }
+.intake-view .actions { justify-content: flex-end; }
+
+/* Inbox order-reconciliation chip (redesign step 9) */
+.draft-order { display: inline-block; margin-top: 6px; border-color: var(--copper); }
+
+/* Watch mode: lab-scanner theater on the Intake tab */
+.watch { margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); padding: 10px 12px; }
+.watch-head { display: flex; align-items: center; gap: 10px; }
+.watch-state { margin-right: auto; font-size: .78rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.watch-stage { display: flex; gap: 14px; margin-top: 10px; align-items: stretch; }
+.watch-photo { position: relative; width: 230px; height: 230px; flex: none; background: #0c0b0a; border-radius: 10px; overflow: hidden; }
+.watch-photo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.watch-photo svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#wRingC { fill: none; stroke: var(--copper); stroke-width: 1.5; opacity: .9;
+  transition: cx .45s ease, cy .45s ease, r .45s ease; }
+#wRing.sweeping #wRingC { stroke-dasharray: 40 22; animation: wsweep 1.6s linear infinite; opacity: .55; }
+#wRingC.locked { stroke-width: 2; filter: drop-shadow(0 0 5px var(--copper)); stroke-dasharray: none; }
+@keyframes wsweep { to { stroke-dashoffset: -62; } }
+.watch-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+#wStrip { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 6px; background: #0c0b0a; image-rendering: pixelated; }
+.watch-board { display: flex; flex-direction: column; gap: 4px; }
+.wrow { display: flex; align-items: center; gap: 8px; font-size: .76rem; }
+.wrow .wname { flex: 0 0 42%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wrow .wbar { flex: 1; height: 7px; border-radius: 4px; background: rgba(255,255,255,.06); overflow: hidden; }
+.wrow .wbar i { display: block; height: 100%; background: linear-gradient(90deg, #6e4a26, var(--copper)); border-radius: 4px; transition: width .9s cubic-bezier(.2,.7,.2,1); }
+.wrow.win .wname { color: var(--copper); font-weight: 700; }
+.wrow.win .wbar i { filter: drop-shadow(0 0 4px var(--copper)); }
+.wrow .wscore { font-size: .7rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.wverdict { font-size: .76rem; margin-top: 2px; }
+.wverdict.ok { color: var(--copper); }
+.wverdict.miss { color: var(--ink-soft); animation: wpulse 1.4s ease-in-out infinite; }
+@keyframes wpulse { 50% { opacity: .45; } }
+.watch-log { display: flex; flex-direction: column; gap: 2px; }
+.wlog-line { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .7rem; color: var(--ink-soft);
+  animation: wfade .5s ease; }
+.wlog-line.ok { color: var(--copper); }
+.wlog-line.err { color: #e0604f; }
+.wlog-line.type { color: #d8d2c8; }
+@keyframes wfade { from { opacity: 0; transform: translateY(3px); } }
+@media (max-width: 640px) { .watch-stage { flex-direction: column; } .watch-photo { width: 100%; } }
+.watch-photo img.raw { filter: brightness(1.7) saturate(1.1); }
+
+
+/* view-only album overrides */
+body { padding-bottom: 40px; }
+.wrap { max-width: 1100px; }
+.coin-tile { cursor: pointer; }
+.album-tabs { display: flex; gap: 8px; justify-content: center; margin: 14px 0 18px; }
+.album-note { text-align: center; color: var(--ink-soft); font-size: .8rem; margin: -4px 0 16px; }
+.set-progress { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.set-progress .bar { flex: 1; height: 7px; border-radius: 5px; background: rgba(127,127,127,.18); overflow: hidden; }
+.set-progress .bar i { display: block; height: 100%; background: var(--copper); border-radius: 5px; }
+.set-progress span { font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.viewer { position: fixed; inset: 0; background: rgba(0,0,0,.72); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 50; }
+.viewer.open { display: flex; }
+.viewer .sheet { max-width: 560px; width: 100%; max-height: 92vh; overflow-y: auto; }
+.viewer .photos { display: flex; gap: 10px; }
+.viewer .photos img { width: calc(50% - 5px); border-radius: 12px; background: #111; }
+.viewer .photos img:only-child { width: 100%; }
+.viewer .photos img.round { border-radius: 50%; background: #0b0a09; }
+.viewer table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .92rem; }
+.viewer td { padding: 5px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.viewer td:first-child { color: var(--ink-soft); width: 38%; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; padding-top: 7px; }
+.viewer .notes-row td { color: var(--ink); font-size: .86rem; }
+.viewer .actions { margin-top: 14px; }
+
+</style>
+</head>
+<body class="grid-view">
+<div class="wrap">
+  <header class="site"><h1>Coin Collection</h1></header>
+  <section class="stats" aria-label="Collection summary">
+    <div class="stat"><div class="label">Coins</div><div class="value">21</div></div>
+    <div class="stat"><div class="label">Years</div><div class="value">1938–2026</div></div>
+    <div class="stat"><div class="label">Sets underway</div><div class="value">2</div></div>
+  </section>
+  <div class="album-tabs">
+    <button class="tab active" id="tCoins">Coins</button>
+    <button class="tab" id="tSets">Collections</button>
+  </div>
+  <p class="album-note">A view-only album — tap a coin for its card.</p>
+  <main id="list" class="grid">
+<article class="coin-tile" data-i="0" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c0-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1938-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="1" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c1-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1938-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="2" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c2-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1939</div>
+    
+  </article>
+<article class="coin-tile" data-i="3" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
+    <div class="tile-photo round"><img src="images/c3-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
+    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
+    <div class="tile-meta">1942-P</div>
+    
+  </article>
+<article class="coin-tile" data-i="4" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
+    <div class="tile-photo round"><img src="images/c4-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
+    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
+    <div class="tile-meta">1942-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="5" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c5-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1943-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="6" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
+    <div class="tile-photo round"><img src="images/c6-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
+    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
+    <div class="tile-meta">1943-P</div>
+    
+  </article>
+<article class="coin-tile" data-i="7" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c7-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1944-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="8" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c8-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1944-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="9" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c9-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1944-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="10" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c10-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1945-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="11" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c11-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1945-P</div>
+    
+  </article>
+<article class="coin-tile" data-i="12" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c12-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1945-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="13" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
+    <div class="tile-photo round"><img src="images/c13-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
+    <h3>Jefferson Nickel - American Bison</h3>
+    <div class="tile-meta">2005-D <span class="finish-chip">Satin (SMS)</span></div>
+    
+  </article>
+<article class="coin-tile" data-i="14" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
+    <div class="tile-photo round"><img src="images/c14-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
+    <h3>Jefferson Nickel - American Bison</h3>
+    <div class="tile-meta">2005-D <span class="finish-chip">Business Strike</span></div>
+    
+  </article>
+<article class="coin-tile" data-i="15" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
+    <div class="tile-photo round"><img src="images/c15-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
+    <h3>Jefferson Nickel - American Bison</h3>
+    <div class="tile-meta">2005-P <span class="finish-chip">Satin (SMS)</span></div>
+    
+  </article>
+<article class="coin-tile" data-i="16" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
+    <div class="tile-photo round"><img src="images/c16-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
+    <h3>Jefferson Nickel - American Bison</h3>
+    <div class="tile-meta">2005-P <span class="finish-chip">Business Strike</span></div>
+    
+  </article>
+<article class="coin-tile" data-i="17" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
+    <div class="tile-photo round"><img src="images/c17-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
+    <h3>Jefferson Nickel - American Bison</h3>
+    <div class="tile-meta">2005-S <span class="finish-chip">Proof</span></div>
+    
+  </article>
+<article class="coin-tile" data-i="18" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
+    <div class="tile-photo round"><img src="images/c18-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
+    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
+    <div class="tile-meta">1944-P</div>
+    
+  </article>
+<article class="coin-tile" data-i="19" tabindex="0" role="button" aria-label="View Revolutionary War Quarter">
+    <div class="tile-photo round"><img src="images/c19-0.jpg" alt="Revolutionary War Quarter" loading="lazy"></div>
+    <h3>Revolutionary War Quarter</h3>
+    <div class="tile-meta">2026-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="20" tabindex="0" role="button" aria-label="View Unidentified coin">
+    <div class="tile-photo round"><img src="images/c20-0.jpg" alt="Unidentified coin" loading="lazy"></div>
+    <h3>Unidentified coin</h3>
+    <div class="tile-meta">1938</div>
+    
+  </article>
+  </main>
+  <main id="setsList" class="sets-grid" hidden>
+<article class="card set-card">
+    <h3>Jefferson Nickels (1938-1964)</h3>
+    <div class="set-progress"><div class="bar"><i style="width:14%"></i></div>
+    <span>10 / 71</span></div>
+  </article>
+<article class="card set-card">
+    <h3>Washington Quarters (1932-1998)</h3>
+    <div class="set-progress"><div class="bar"><i style="width:5%"></i></div>
+    <span>10 / 185</span></div>
+  </article>
+<article class="card set-card">
+    <h3>50 State Quarters</h3>
+    <div class="set-progress"><div class="bar"><i style="width:0%"></i></div>
+    <span>0 / 100</span></div>
+  </article>
+<article class="card set-card">
+    <h3>American Women Quarters</h3>
+    <div class="set-progress"><div class="bar"><i style="width:0%"></i></div>
+    <span>0 / 60</span></div>
+  </article>
+<article class="card set-card">
+    <h3>America the Beautiful Quarters</h3>
+    <div class="set-progress"><div class="bar"><i style="width:0%"></i></div>
+    <span>0 / 112</span></div>
+  </article>
+<article class="card set-card">
+    <h3>Semiquincentennial Quarters</h3>
+    <div class="set-progress"><div class="bar"><i style="width:0%"></i></div>
+    <span>0 / 10</span></div>
+  </article>
+  </main>
+</div>
+<div class="viewer" id="viewer" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <h2 id="vName"></h2>
+    <div class="photos"><img id="vFront" alt="obverse"><img id="vBack" alt="reverse"></div>
+    <table id="vSpecs"></table>
+    <div class="actions"><button type="button" class="btn primary" id="vClose">Close</button></div>
+  </div>
+</div>
+<script>
+const DATA = [{"n":"Jefferson Nickel","y":1938,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"","im":["images/c0-0.jpg","images/c0-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1938,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c1-0.jpg","images/c1-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"","im":["images/c2-0.jpg","images/c2-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"P","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c3-0.jpg","images/c3-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c4-0.jpg","images/c4-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c5-0.jpg","images/c5-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1943,"m":"P","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c6-0.jpg","images/c6-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c7-0.jpg","images/c7-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"","im":["images/c8-0.jpg","images/c8-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c9-0.jpg","images/c9-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c10-0.jpg","images/c10-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"P","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c11-0.jpg","images/c11-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c12-0.jpg","images/c12-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"D","f":"Satin (SMS)","g":"","s":"Jefferson Nickel","co":"","d":"","cp":"","w":null,"dm":null,"e":"","q":1,"no":"BU; www.davescoins.com; Mintage: 1,160,000","im":["images/c13-0.jpg","images/c13-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"D","f":"Business Strike","g":"","s":"Jefferson Nickel","co":"","d":"","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Choice BU, Non-PVC Coin Flip, davescoins.com","im":["images/c14-0.jpg","images/c14-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"P","f":"Satin (SMS)","g":"","s":"Jefferson Nickel","co":"","d":"Nickel","cp":"","w":null,"dm":null,"e":"","q":1,"no":"BU (Brilliant Uncirculated), davescoins.com, Mintage: 1,160,000","im":["images/c15-0.jpg","images/c15-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"P","f":"Business Strike","g":"","s":"Jefferson Nickel","co":"","d":"5 Cents","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Choice BU; Non-PVC Coin Flip; davescoins.com","im":["images/c16-0.jpg","images/c16-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"S","f":"Proof","g":"","s":"Jefferson Nickel","co":"","d":"5 Cents","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Gem DCam; Non-PVC Coin Flip; Mintage: 3,344,679; davescoins.com","im":["images/c17-0.jpg","images/c17-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1944,"m":"P","f":"","g":"","s":"Jefferson Nickel, Wartime Silver Type (1942-1945)","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c18-0.jpg","images/c18-1.jpg"],"r":[true,true]},{"n":"Revolutionary War Quarter","y":2026,"m":"S","f":"","g":"","s":"Semiquincentennial Quarters","co":"United States","d":"Quarter Dollar","cp":"Copper-nickel clad","w":5.67,"dm":24.26,"e":"reeded","q":1,"no":"","im":["images/c19-0.jpg","images/c19-1.jpg"],"r":[true,true]},{"n":"Unidentified coin","y":1938,"m":"","f":"","g":"","s":"","co":"","d":"","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Handwritten: 'BU'","im":["images/c20-0.jpg","images/c20-1.jpg"],"r":[true,true]}];
+const $ = id => document.getElementById(id);
+$('tCoins').onclick = () => { $('tCoins').classList.add('active'); $('tSets').classList.remove('active'); $('list').hidden = false; $('setsList').hidden = true; };
+$('tSets').onclick = () => { $('tSets').classList.add('active'); $('tCoins').classList.remove('active'); $('list').hidden = true; $('setsList').hidden = false; };
+function openV(i) {
+  const c = DATA[i];
+  $('vName').textContent = c.n;
+  $('vFront').src = c.im[0]; $('vFront').classList.toggle('round', !!(c.r && c.r[0]));
+  if (c.im[1]) { $('vBack').src = c.im[1]; $('vBack').style.display = ''; $('vBack').classList.toggle('round', !!(c.r && c.r[1])); } else $('vBack').style.display = 'none';
+  const rows = [['Year', [c.y, c.m].filter(Boolean).join('-')], ['Finish', c.f], ['Grade', c.g], ['Series', c.s], ['Country', c.co], ['Denomination', c.d], ['Composition', c.cp], ['Weight', c.w ? c.w + ' g' : ''], ['Diameter', c.dm ? c.dm + ' mm' : ''], ['Edge', c.e], ['Quantity', c.q > 1 ? '×' + c.q : ''], ['Notes', c.no]];
+  $('vSpecs').innerHTML = rows.filter(r => r[1]).map(r => '<tr' + (r[0] === 'Notes' ? ' class="notes-row"' : '') + '><td>' + r[0] + '</td><td>' + String(r[1]).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</td></tr>').join('');
+  $('viewer').classList.add('open');
+}
+document.querySelectorAll('.coin-tile').forEach(el => {
+  const go = () => openV(+el.dataset.i);
+  el.addEventListener('click', go);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+});
+$('vClose').onclick = () => $('viewer').classList.remove('open');
+$('viewer').addEventListener('click', e => { if (e.target === $('viewer')) $('viewer').classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('viewer').classList.remove('open'); });
+</script>
+</body>
+</html>
