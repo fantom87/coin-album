@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Coin Collection</title>
+<title>Fantom's Coins</title>
+<meta name="description" content="Fantom's Coins — a view-only coin album.">
 <style>
 :root {
   --bg: #f7f7f5;
@@ -1053,6 +1054,10 @@ button.ai-head { width: 100%; background: none; border: none; padding: 0; cursor
 @media (max-width: 640px) { .watch-stage { flex-direction: column; } .watch-photo { width: 100%; } }
 .watch-photo img.raw { filter: brightness(1.7) saturate(1.1); }
 
+/* camera-link health line (Intake) — a hung FTP session used to fail silently */
+.ftp-link { margin-top: 6px; font-size: .78rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.ftp-link.warn { color: #c9803a; font-weight: 600; }
+
 
 /* view-only album overrides */
 body { padding-bottom: 40px; }
@@ -1081,10 +1086,10 @@ body { padding-bottom: 40px; }
 </head>
 <body class="grid-view">
 <div class="wrap">
-  <header class="site"><h1>Coin Collection</h1></header>
+  <header class="site"><h1>Fantom's Coins</h1></header>
   <section class="stats" aria-label="Collection summary">
-    <div class="stat"><div class="label">Coins</div><div class="value">21</div></div>
-    <div class="stat"><div class="label">Years</div><div class="value">1938–2026</div></div>
+    <div class="stat"><div class="label">Coins</div><div class="value">32</div></div>
+    <div class="stat"><div class="label">Years</div><div class="value">1938–1977</div></div>
     <div class="stat"><div class="label">Sets underway</div><div class="value">2</div></div>
   </section>
   <div class="album-tabs">
@@ -1096,140 +1101,206 @@ body { padding-bottom: 40px; }
 <article class="coin-tile" data-i="0" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c0-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1938-D</div>
+    <div class="tile-meta">1938</div>
     
   </article>
-<article class="coin-tile" data-i="1" tabindex="0" role="button" aria-label="View Jefferson Nickel">
-    <div class="tile-photo round"><img src="images/c1-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
-    <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1938-S</div>
+<article class="coin-tile" data-i="1" tabindex="0" role="button" aria-label="View Jefferson Nickel (modern obverse)">
+    <div class="tile-photo round"><img src="images/c1-0.jpg" alt="Jefferson Nickel (modern obverse)" loading="lazy"></div>
+    <h3>Jefferson Nickel (modern obverse)</h3>
+    <div class="tile-meta">1938-D</div>
     
   </article>
 <article class="coin-tile" data-i="2" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c2-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1939</div>
+    <div class="tile-meta">1938-S</div>
     
   </article>
-<article class="coin-tile" data-i="3" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
-    <div class="tile-photo round"><img src="images/c3-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
-    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
-    <div class="tile-meta">1942-P</div>
+<article class="coin-tile" data-i="3" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c3-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1939-D</div>
     
   </article>
-<article class="coin-tile" data-i="4" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
-    <div class="tile-photo round"><img src="images/c4-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
-    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
-    <div class="tile-meta">1942-S</div>
+<article class="coin-tile" data-i="4" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c4-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1941</div>
     
   </article>
 <article class="coin-tile" data-i="5" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c5-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1943-D</div>
+    <div class="tile-meta">1942-P</div>
     
   </article>
-<article class="coin-tile" data-i="6" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
-    <div class="tile-photo round"><img src="images/c6-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
-    <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
-    <div class="tile-meta">1943-P</div>
+<article class="coin-tile" data-i="6" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c6-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1943-D</div>
     
   </article>
 <article class="coin-tile" data-i="7" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c7-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1944-D</div>
+    <div class="tile-meta">1943-P</div>
     
   </article>
 <article class="coin-tile" data-i="8" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c8-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1944-S</div>
+    <div class="tile-meta">1943-S</div>
     
   </article>
 <article class="coin-tile" data-i="9" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c9-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1944-S</div>
+    <div class="tile-meta">1944-D</div>
     
   </article>
 <article class="coin-tile" data-i="10" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c10-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1945-D</div>
+    <div class="tile-meta">1944-P</div>
     
   </article>
 <article class="coin-tile" data-i="11" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c11-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
-    <div class="tile-meta">1945-P</div>
+    <div class="tile-meta">1944-S</div>
     
   </article>
 <article class="coin-tile" data-i="12" tabindex="0" role="button" aria-label="View Jefferson Nickel">
     <div class="tile-photo round"><img src="images/c12-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
     <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1945-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="13" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c13-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1945-P</div>
+    
+  </article>
+<article class="coin-tile" data-i="14" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c14-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
     <div class="tile-meta">1945-S</div>
     
   </article>
-<article class="coin-tile" data-i="13" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
-    <div class="tile-photo round"><img src="images/c13-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
-    <h3>Jefferson Nickel - American Bison</h3>
-    <div class="tile-meta">2005-D <span class="finish-chip">Satin (SMS)</span></div>
+<article class="coin-tile" data-i="15" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c15-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1946</div>
     
   </article>
-<article class="coin-tile" data-i="14" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
-    <div class="tile-photo round"><img src="images/c14-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
-    <h3>Jefferson Nickel - American Bison</h3>
-    <div class="tile-meta">2005-D <span class="finish-chip">Business Strike</span></div>
+<article class="coin-tile" data-i="16" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c16-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1946-D</div>
     
   </article>
-<article class="coin-tile" data-i="15" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
-    <div class="tile-photo round"><img src="images/c15-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
-    <h3>Jefferson Nickel - American Bison</h3>
-    <div class="tile-meta">2005-P <span class="finish-chip">Satin (SMS)</span></div>
+<article class="coin-tile" data-i="17" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c17-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1947</div>
     
   </article>
-<article class="coin-tile" data-i="16" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
-    <div class="tile-photo round"><img src="images/c16-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
-    <h3>Jefferson Nickel - American Bison</h3>
-    <div class="tile-meta">2005-P <span class="finish-chip">Business Strike</span></div>
+<article class="coin-tile" data-i="18" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c18-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1948</div>
     
   </article>
-<article class="coin-tile" data-i="17" tabindex="0" role="button" aria-label="View Jefferson Nickel - American Bison">
-    <div class="tile-photo round"><img src="images/c17-0.jpg" alt="Jefferson Nickel - American Bison" loading="lazy"></div>
-    <h3>Jefferson Nickel - American Bison</h3>
-    <div class="tile-meta">2005-S <span class="finish-chip">Proof</span></div>
+<article class="coin-tile" data-i="19" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c19-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1948-D</div>
     
   </article>
-<article class="coin-tile" data-i="18" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
-    <div class="tile-photo round"><img src="images/c18-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
+<article class="coin-tile" data-i="20" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c20-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1948-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="21" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c21-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1949</div>
+    
+  </article>
+<article class="coin-tile" data-i="22" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c22-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1951-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="23" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c23-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1952</div>
+    
+  </article>
+<article class="coin-tile" data-i="24" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c24-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1952-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="25" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c25-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1953</div>
+    
+  </article>
+<article class="coin-tile" data-i="26" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c26-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1953-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="27" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c27-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1957-S</div>
+    
+  </article>
+<article class="coin-tile" data-i="28" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c28-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1977-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="29" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c29-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1953-D</div>
+    
+  </article>
+<article class="coin-tile" data-i="30" tabindex="0" role="button" aria-label="View Jefferson Nickel">
+    <div class="tile-photo round"><img src="images/c30-0.jpg" alt="Jefferson Nickel" loading="lazy"></div>
+    <h3>Jefferson Nickel</h3>
+    <div class="tile-meta">1939</div>
+    
+  </article>
+<article class="coin-tile" data-i="31" tabindex="0" role="button" aria-label="View Jefferson Nickel (Wartime Silver Alloy)">
+    <div class="tile-photo round"><img src="images/c31-0.jpg" alt="Jefferson Nickel (Wartime Silver Alloy)" loading="lazy"></div>
     <h3>Jefferson Nickel (Wartime Silver Alloy)</h3>
-    <div class="tile-meta">1944-P</div>
-    
-  </article>
-<article class="coin-tile" data-i="19" tabindex="0" role="button" aria-label="View Revolutionary War Quarter">
-    <div class="tile-photo round"><img src="images/c19-0.jpg" alt="Revolutionary War Quarter" loading="lazy"></div>
-    <h3>Revolutionary War Quarter</h3>
-    <div class="tile-meta">2026-S</div>
-    
-  </article>
-<article class="coin-tile" data-i="20" tabindex="0" role="button" aria-label="View Unidentified coin">
-    <div class="tile-photo round"><img src="images/c20-0.jpg" alt="Unidentified coin" loading="lazy"></div>
-    <h3>Unidentified coin</h3>
-    <div class="tile-meta">1938</div>
+    <div class="tile-meta">1942-S</div>
     
   </article>
   </main>
   <main id="setsList" class="sets-grid" hidden>
 <article class="card set-card">
     <h3>Jefferson Nickels (1938-1964)</h3>
-    <div class="set-progress"><div class="bar"><i style="width:14%"></i></div>
-    <span>10 / 71</span></div>
+    <div class="set-progress"><div class="bar"><i style="width:32%"></i></div>
+    <span>23 / 71</span></div>
   </article>
 <article class="card set-card">
     <h3>Washington Quarters (1932-1998)</h3>
-    <div class="set-progress"><div class="bar"><i style="width:5%"></i></div>
-    <span>10 / 185</span></div>
+    <div class="set-progress"><div class="bar"><i style="width:12%"></i></div>
+    <span>22 / 185</span></div>
   </article>
 <article class="card set-card">
     <h3>50 State Quarters</h3>
@@ -1262,7 +1333,7 @@ body { padding-bottom: 40px; }
   </div>
 </div>
 <script>
-const DATA = [{"n":"Jefferson Nickel","y":1938,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"","im":["images/c0-0.jpg","images/c0-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1938,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c1-0.jpg","images/c1-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"","im":["images/c2-0.jpg","images/c2-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"P","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c3-0.jpg","images/c3-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c4-0.jpg","images/c4-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c5-0.jpg","images/c5-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1943,"m":"P","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c6-0.jpg","images/c6-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c7-0.jpg","images/c7-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"","im":["images/c8-0.jpg","images/c8-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c9-0.jpg","images/c9-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"D","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c10-0.jpg","images/c10-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"P","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c11-0.jpg","images/c11-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"S","f":"","g":"","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c12-0.jpg","images/c12-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"D","f":"Satin (SMS)","g":"","s":"Jefferson Nickel","co":"","d":"","cp":"","w":null,"dm":null,"e":"","q":1,"no":"BU; www.davescoins.com; Mintage: 1,160,000","im":["images/c13-0.jpg","images/c13-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"D","f":"Business Strike","g":"","s":"Jefferson Nickel","co":"","d":"","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Choice BU, Non-PVC Coin Flip, davescoins.com","im":["images/c14-0.jpg","images/c14-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"P","f":"Satin (SMS)","g":"","s":"Jefferson Nickel","co":"","d":"Nickel","cp":"","w":null,"dm":null,"e":"","q":1,"no":"BU (Brilliant Uncirculated), davescoins.com, Mintage: 1,160,000","im":["images/c15-0.jpg","images/c15-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"P","f":"Business Strike","g":"","s":"Jefferson Nickel","co":"","d":"5 Cents","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Choice BU; Non-PVC Coin Flip; davescoins.com","im":["images/c16-0.jpg","images/c16-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"S","f":"Proof","g":"","s":"Jefferson Nickel","co":"","d":"5 Cents","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Gem DCam; Non-PVC Coin Flip; Mintage: 3,344,679; davescoins.com","im":["images/c17-0.jpg","images/c17-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1944,"m":"P","f":"","g":"","s":"Jefferson Nickel, Wartime Silver Type (1942-1945)","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"no":"","im":["images/c18-0.jpg","images/c18-1.jpg"],"r":[true,true]},{"n":"Revolutionary War Quarter","y":2026,"m":"S","f":"","g":"","s":"Semiquincentennial Quarters","co":"United States","d":"Quarter Dollar","cp":"Copper-nickel clad","w":5.67,"dm":24.26,"e":"reeded","q":1,"no":"","im":["images/c19-0.jpg","images/c19-1.jpg"],"r":[true,true]},{"n":"Unidentified coin","y":1938,"m":"","f":"","g":"","s":"","co":"","d":"","cp":"","w":null,"dm":null,"e":"","q":1,"no":"Handwritten: 'BU'","im":["images/c20-0.jpg","images/c20-1.jpg"],"r":[true,true]}];
+const DATA = [{"n":"Jefferson Nickel","y":1938,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"75% copper, 25% nickel","w":5,"dm":21.2,"e":"plain","q":1,"no":"Handwritten dealer flip; grade descriptor 'BG' written upper right","im":["images/c0-0.jpg","images/c0-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (modern obverse)","y":1938,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","q":1,"no":"Buy","im":["images/c1-0.jpg","images/c1-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1938,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated); handwritten label includes markings after mint mark F that are partially unclear, possibly 'ES' or similar","im":["images/c2-0.jpg","images/c2-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c3-0.jpg","images/c3-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1941,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c4-0.jpg","images/c4-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1942,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"im":["images/c5-0.jpg","images/c5-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c6-0.jpg","images/c6-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c7-0.jpg","images/c7-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c8-0.jpg","images/c8-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c9-0.jpg","images/c9-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c10-0.jpg","images/c10-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c11-0.jpg","images/c11-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c12-0.jpg","images/c12-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c13-0.jpg","images/c13-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c14-0.jpg","images/c14-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1946,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c15-0.jpg","images/c15-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1946,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated - condition descriptor)","im":["images/c16-0.jpg","images/c16-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1947,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c17-0.jpg","images/c17-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c18-0.jpg","images/c18-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c19-0.jpg","images/c19-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated — condition descriptor)","im":["images/c20-0.jpg","images/c20-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1949,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"Handwritten label on 2x2 flip: '1949' on left, 'B44' on right","im":["images/c21-0.jpg","images/c21-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1951,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated condition descriptor)","im":["images/c22-0.jpg","images/c22-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c23-0.jpg","images/c23-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c24-0.jpg","images/c24-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c25-0.jpg","images/c25-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c26-0.jpg","images/c26-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1957,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c27-0.jpg","images/c27-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1977,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated descriptor)","im":["images/c28-0.jpg","images/c28-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"D","s":"Jefferson Nickel (1938-2004, pre-Westward Journey)","co":"United States","d":"5 cents","cp":"75% copper, 25% nickel","w":5,"dm":21.2,"e":"plain","q":1,"no":"BU","im":["images/c29-0.jpg","images/c29-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"s":"Jefferson Nickel (Monticello reverse, pre-war composition)","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% copper, 25% nickel)","w":5,"dm":21.2,"e":"plain","q":1,"no":"BU (Business Uncirculated grade descriptor)","im":["images/c30-0.jpg","images/c30-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"S","s":"Jefferson Nickel, Wartime Silver","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"im":["images/c31-0.jpg","images/c31-1.jpg"],"r":[true,true]}];
 const $ = id => document.getElementById(id);
 $('tCoins').onclick = () => { $('tCoins').classList.add('active'); $('tSets').classList.remove('active'); $('list').hidden = false; $('setsList').hidden = true; };
 $('tSets').onclick = () => { $('tSets').classList.add('active'); $('tCoins').classList.remove('active'); $('list').hidden = true; $('setsList').hidden = false; };
