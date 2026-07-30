@@ -67,7 +67,18 @@ header.site h1 { font-size: 1.55rem; font-weight: 600; letter-spacing: .01em; ma
 .menu-btn:hover { color: var(--ink); }
 
 /* Stats */
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+/* Value is the headline, not a peer of two counts — give its tile the extra width
+   and the larger number so the eye lands there first. */
+.stats { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px; margin-bottom: 18px; }
+/* .stat.stat-lead, not .stat-lead — ".stat .value" below has the same specificity as
+   ".stat-lead .value" and is declared later, so the plain rule would win and the lead
+   number would silently stay the same size as its neighbours. */
+.stat.stat-lead .value { font-size: 1.75rem; }
+@media (max-width: 520px) {
+  /* narrow: the width trick buys nothing, so equal thirds and a smaller lead */
+  .stats { grid-template-columns: repeat(3, 1fr); }
+  .stat.stat-lead .value { font-size: 1.4rem; }
+}
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow); }
 .stat .label { font-size: .68rem; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-soft); margin-bottom: 2px; }
 .stat .value { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -200,6 +211,31 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 /* Collections grid */
 .sets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; align-items: start; }
 .sets-grid .set-card { margin: 0; height: 100%; }
+
+/* The whole album, as one wide card above the checklists. Deliberately a different
+   shape from a set card — it is a way out of the collections view, not another
+   collection, and making it look like a peer would invite exactly that confusion. */
+/* Plain surface, not copper. This is navigation — a way into the album — and it was
+   competing for attention with the coverage bar directly beneath it. Copper is
+   reserved for the one thing on a screen that wants acting on; when four panels wear
+   it, none of them reads as urgent. The "Browse ›" affordance carries the accent
+   instead, which is enough. */
+.all-card {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+  box-shadow: var(--shadow); cursor: pointer;
+}
+.all-card:hover, .all-card:focus-visible { border-color: var(--copper); }
+.all-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.all-card h3 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.all-sub { font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.all-go { font-size: .82rem; font-weight: 600; color: var(--copper); white-space: nowrap; }
+.all-strip { display: flex; gap: 6px; margin-top: 10px; overflow: hidden; }
+.all-strip .cover { flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: var(--surface-2); }
+.all-strip .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* the strip is decoration, not a list — drop the tail rather than wrap or scroll */
+@media (max-width: 460px) { .all-strip .cover:nth-child(n+6) { display: none; } }
 .sets-grid .set-card .sub { display: none; }
 @media (hover: hover) {
   .sets-grid .set-card:hover { border-color: var(--copper); box-shadow: var(--shadow); }
@@ -419,6 +455,8 @@ input.locked, select.locked {
 button.ai-head { width: 100%; background: none; border: none; padding: 0; cursor: pointer; font: inherit; color: inherit; text-align: left; }
 .ai-panel .chev { color: var(--copper); font-size: .8rem; }
 .ai-panel.collapsed #aiBody { display: none; }
+/* the showcase's panel has no #aiBody — its text is the body */
+.ai-panel.collapsed #scAiText { display: none; }
 .ai-panel.collapsed .ai-head { margin-bottom: 0; }
 .ai-panel.dupe { background: var(--surface); border-color: var(--line); }
 .ai-panel.dupe .ai-title { color: var(--ink-soft); }
@@ -886,8 +924,127 @@ button.ai-head { width: 100%; background: none; border: none; padding: 0; cursor
 .inc-sub { font-size: .72rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .03em; margin: 0 0 5px 2px; }
 .slot-tap { cursor: pointer; font: inherit; font-size: .8rem; }
 .slot-tap:hover { border-color: var(--copper); }
-.hunt-head { display: flex; justify-content: space-between; align-items: center; }
-.hunt-head b { font-size: .95rem; }
+.hunt-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hunt-head b { font-size: .95rem; margin-right: auto; } /* buttons stay together when the row wraps */
+
+/* die varieties — flagged only when one is actually possible for this date+mint */
+.variety-panel {
+  margin: 10px 0; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--copper); background: var(--copper-soft);
+}
+.variety-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.variety-head b { font-size: .86rem; }
+.variety-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  padding: 5px 0; border-top: 1px solid var(--line); font-size: .8rem;
+}
+.variety-row small { display: block; font-size: .72rem; color: var(--ink-soft); }
+.variety-row .v-why { font-style: italic; }
+.v-fs { font-size: .7rem; font-weight: 700; color: var(--copper); }
+.v-state { flex: 0 0 auto; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.variety-row.hit .v-state { color: var(--danger); }
+.variety-row.clear .v-state { color: var(--ink-soft); font-weight: 400; }
+.variety-row.open .v-state { color: var(--copper); }
+/* the designation check gets its own action row: it is a separate call from the variety
+   sweep, and putting a second button in .variety-head would read as one control */
+.variety-act { display: flex; justify-content: flex-end; padding-top: 7px; }
+
+/* coverage bar: how many coins no checklist accounts for */
+#stragglerBar { grid-column: 1 / -1; }
+.straggler {
+  display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left;
+  padding: 9px 12px; border-radius: 10px; font: inherit; cursor: pointer;
+  border: 1px solid var(--copper); background: var(--copper-soft); color: var(--ink);
+}
+.straggler b { font-size: .86rem; }
+.straggler small { font-size: .74rem; color: var(--ink-soft); }
+.straggler.ok {
+  border-color: var(--line); background: var(--surface); color: var(--ink-soft);
+  cursor: default; font-size: .8rem; padding: 7px 12px;
+}
+/* a duplicate riding on a filled slot */
+.slot-dupes {
+  cursor: pointer;
+  position: absolute; right: 2px; bottom: 2px; padding: 0 5px; border-radius: 8px;
+  background: var(--copper); color: #fff; font-size: .62rem; font-weight: 700; line-height: 1.5;
+}
+.slot-card-photo { position: relative; }
+.dupe-row { display: flex; flex-direction: column; gap: 1px; text-align: left; }
+
+/* browse-and-add a collection: pick a series instead of guessing its name */
+.pick-list { max-height: 38vh; overflow-y: auto; margin: 0 0 12px; }
+.pick-head {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--ink-soft); margin: 10px 0 5px;
+}
+.pick-head:first-child { margin-top: 0; }
+.pick-row {
+  display: flex; flex-direction: column; gap: 1px; width: 100%; text-align: left;
+  padding: 7px 10px; margin-bottom: 4px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--ink);
+  font: inherit;
+}
+.pick-row:hover:not(:disabled) { border-color: var(--copper); }
+.pick-row:disabled { opacity: .5; cursor: default; }
+.pick-name { font-size: .88rem; font-weight: 600; }
+.pick-meta { font-size: .72rem; color: var(--ink-soft); }
+
+/* density: the target beside the reading, and the reference behind a toggle */
+.sg-verdict { margin: -2px 0 8px; font-size: .8rem; line-height: 1.35; }
+.sg-verdict.aim { color: var(--ink-soft); }
+.sg-verdict.ok { color: var(--good, #2e7d32); }
+.sg-verdict.bad { color: var(--danger); font-weight: 600; }
+.linkbtn {
+  background: none; border: 0; padding: 0; font: inherit; font-size: inherit;
+  color: var(--copper); text-decoration: underline; cursor: pointer;
+}
+.sg-guide {
+  margin: 6px 0 10px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface); max-height: 42vh; overflow-y: auto;
+}
+.sg-guide-head {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--ink-soft); margin: 8px 0 4px;
+}
+.sg-guide-head:first-child { margin-top: 0; }
+.sg-row {
+  display: flex; justify-content: space-between; gap: 12px; padding: 3px 0;
+  font-size: .82rem; font-variant-numeric: tabular-nums;
+}
+.sg-row.fake { color: var(--ink-soft); }
+.sg-row b { flex: 0 0 auto; }
+
+/* a slab frame is tagged distinctly from a label — it is kept, a label is not */
+.fi-slab { outline: 2px solid var(--copper); outline-offset: -2px; }
+
+/* specific gravity: live readout in the form, and a loud mismatch on the card */
+.sg-readout label { display: block; }
+.sg-out {
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; font-size: .95rem;
+}
+.sg-out.has { color: var(--ink); font-weight: 600; }
+.sg-warn {
+  grid-column: 1 / -1; margin-top: 8px; padding: 9px 11px; border-radius: 9px;
+  border: 1px solid var(--danger, #b3261e); color: var(--danger, #b3261e);
+  background: color-mix(in srgb, var(--danger, #b3261e) 8%, transparent);
+  font-size: .84rem; line-height: 1.35;
+}
+
+/* order → coin price reconciliation: one row per proposed pairing */
+.rec-list { max-height: 46vh; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+.rec-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+}
+.rec-row:hover { border-color: var(--copper); }
+.rec-weak { border-style: dashed; } /* lower-confidence pairing — worth a second look */
+.rec-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.rec-coin { font-size: .88rem; font-weight: 600; }
+.rec-order { font-size: .72rem; color: var(--ink-soft); }
+.rec-money { flex: 0 0 auto; font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.rec-money b { color: var(--ink); }
 
 /* the scan check gets its own home-screen button above the + — same size, stacked */
 .fab-scan { bottom: 96px; font-size: 1.45rem; }
@@ -1105,6 +1262,111 @@ button.ai-head { width: 100%; background: none; border: none; padding: 0; cursor
 .slot-noimg { font-size: 1.6rem; opacity: .5; }
 @media (max-width: 560px) { #slotGrid.slot-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; } }
 
+/* Appraisal report (designation · grading ROI · price ladder · population · sales) */
+.apr-block { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 10px 0; background: var(--surface-2); }
+.apr-block.hit { border-color: var(--copper); background: var(--copper-soft); }
+.apr-block.warn { border-color: #c9803a; }
+.apr-block b { display: block; margin-bottom: 4px; }
+.apr-block p { margin: 4px 0; font-size: .9rem; }
+.apr-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: .86rem; font-variant-numeric: tabular-nums; }
+.apr-table td { padding: 3px 6px 3px 0; border-bottom: 1px solid var(--line); }
+.apr-table td:nth-child(2) { text-align: right; white-space: nowrap; }
+.apr-table td:last-child { text-align: right; }
+/* the designation earns a chip on the coin card — it is the value headline */
+.desig-chip { color: #d9a441; background: rgba(217,164,65,.15); padding: 0 7px; border-radius: 20px;
+  font-weight: 700; font-size: .72rem; letter-spacing: .03em; }
+
+/* ---------- a graded slab's certification page ---------- */
+/* The grading services 403 any automated fetch, so this panel is the honest bridge: a QR you
+   can scan straight off the screen (or click), and a paste box for handing the page back. */
+.cert-panel {
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 14px; font-size: .87rem;
+}
+.cert-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 700; margin-bottom: 10px; }
+.cert-link { color: var(--copper); text-decoration: none; }
+.cert-link:hover, .cert-link:focus-visible { text-decoration: underline; }
+.cert-body { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.cert-qr-link { flex: 0 0 auto; line-height: 0; border-radius: 8px; }
+/* the code needs a white quiet zone to scan reliably, in either theme */
+.cert-qr { display: block; width: 116px; height: 116px; background: #fff; padding: 6px; border-radius: 8px; }
+.cert-facts { flex: 1 1 210px; min-width: 190px; display: grid; gap: 8px; align-content: start; }
+.cert-facts .spec b { display: block; font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+.cert-facts .hint { margin: 0; }
+.cert-paste { margin-top: 10px; }
+.cert-paste textarea {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: .85rem;
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px;
+  background: var(--surface); color: var(--ink); resize: vertical;
+}
+
+/* desktop scan rig: a real camera picker (a PC has several, some of them virtual) */
+.lh-cam-sel {
+  font: inherit; font-size: .82rem; padding: 6px 8px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  max-width: 190px;
+}
+
+/* The controls column clamps to 240px and .st-row does not wrap, while .lh-controls hides its
+   overflow — so the camera <select> I added beside the buttons pushed Capture and Tally out of
+   the row and they were silently CLIPPED, not just shifted. Wrap the row, and give the picker a
+   line of its own: Done + Capture + Tally then fit the way they did before it existed. */
+.st-row { flex-wrap: wrap; }
+.lh-cam-sel { flex: 1 1 100%; max-width: 100%; min-width: 0; }
+/* send the picker to the end of the row so Done/Capture/Tally keep sharing a line above it */
+.lh-cam-sel { order: 1; }
+/* #lhAskBtn is a flex child of the controls column and inherited flex-grow:1, so it swallowed
+   every spare pixel and rendered as a ~400px orange slab. It should size to its content — the
+   scrolling #lhLog above it is what's meant to absorb the slack. */
+#lhAskBtn { flex: 0 0 auto; }
+/* the ring tracks the detected coin on a copy-stand rig — ease it so it glides rather than snaps */
+.lh-ring { transition: border-color .2s, width .18s ease-out, left .18s ease-out, top .18s ease-out; }
+/* studio relay: the MJPEG <img> must sit exactly where the <video> would, or the ring's
+   object-fit:cover mapping (which assumes the source fills the view) lands in the wrong place */
+.studio-view img#lhStream { width: 100%; height: 100%; object-fit: cover; display: block; }
+.studio-view img#lhStream[hidden] { display: none; }
+/* the gap sweep sits above the single-design harvest box as the "do all of them" option */
+.hv-sweep {
+  display: flex; align-items: center; gap: 12px; justify-content: space-between;
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+  margin-bottom: 12px; background: var(--surface-2);
+}
+.hv-sweep .hint { margin: 2px 0 0; }
+.hv-sweep .btn { flex: 0 0 auto; }
+
+/* PORTRAIT, SCANNER ONLY. The studio's controls fit 34dvh; the scanner's do not — it adds a
+   source toggle, a quality button, a capture-mode row and a shutter, so the shutter ended up
+   under Safari's toolbar. Rather than guess a taller fixed number, let the controls take the
+   height they genuinely need and let the VIEW give up the difference: object-fit:cover just
+   crops a little more off the top and bottom. That is display only — lhGrabBlob reads the
+   video's intrinsic frame, not the on-screen box, so nothing about the capture changes. */
+@media (orientation: portrait) {
+  .overlay.studio .lh-controls {
+    height: auto; max-height: 64dvh; overflow-y: auto;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));  /* clear the iOS toolbar */
+  }
+  .overlay.studio .studio-view { min-height: 28dvh; }
+  /* the running log is the one part allowed to scroll away — capped so it can never push the
+     shutter off the bottom again */
+  .lh-controls #lhLog { flex: 0 1 auto; max-height: 16dvh; }
+}
+
+/* the header value stat carries two numbers: what it's worth, and what it cost */
+.stat .stat-sub {
+  font-size: .68rem; margin-top: 2px; color: var(--ink-soft); letter-spacing: .01em;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0 6px;
+}
+.stat .stat-sub.up { color: var(--ok); }
+.stat .stat-sub.down { color: var(--danger); }
+.stat .stat-sub.none { font-style: italic; }
+
+/* a tray frame: several coins in one shot, split by position */
+.fi-tray { outline: 2px solid var(--good, #2e7d32); outline-offset: -2px; }
+.fi-tray .fi-tag { font-size: .7rem; font-weight: 700; }
+
+/* draw-your-own crop, per photo — sits with the rotate nudges */
+.sc-cropbtn { margin-left: 6px; border-color: var(--copper); color: var(--copper); font-weight: 700; }
+
 
 /* view-only album overrides */
 body { padding-bottom: 40px; }
@@ -1169,119 +1431,278 @@ body { padding-bottom: 40px; }
 <div class="wrap">
   <header class="site"><h1>Fantom's Coins</h1></header>
   <section class="stats" aria-label="Collection summary">
-    <div class="stat"><div class="label">Coins</div><div class="value">32</div></div>
-    <div class="stat"><div class="label">Years</div><div class="value">1938–1953</div></div>
-    <div class="stat"><div class="label">Collections</div><div class="value">1</div></div>
+    <div class="stat"><div class="label">Coins</div><div class="value">71</div></div>
+    <div class="stat"><div class="label">Years</div><div class="value">1857–2024</div></div>
+    <div class="stat"><div class="label">Collections</div><div class="value">4</div></div>
   </section>
   <p class="album-note">A view-only album — open a collection, then tap a coin for its card.</p>
   <main id="groups">
 <section class="group" data-g="0">
       <button class="group-head" aria-expanded="false" aria-controls="grp0">
-        <span class="covers"><span class="cover round"><img src="images/c0-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c1-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c2-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c30-0.jpg" alt="" loading="lazy"></span></span>
+        <span class="covers"><span class="cover round"><img src="images/c6-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c5-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c7-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c65-0.jpg" alt="" loading="lazy"></span></span>
         <span class="group-text">
-          <span class="group-name">Jefferson Nickels (1938-1964)</span>
-          <span class="group-sub">32 of 71 · 45% complete</span>
-          <span class="group-bar"><i style="width:45%"></i></span>
+          <span class="group-name">Jefferson Nickels (1938-date)</span>
+          <span class="group-sub">60 of 194 · 31% complete</span>
+          <span class="group-bar"><i style="width:31%"></i></span>
         </span>
         <span class="group-chev" aria-hidden="true">▸</span>
       </button>
       <div class="group-body" id="grp0" hidden>
-        <div class="mini-grid"><button class="mini" data-i="0" aria-label="View Jefferson Nickel 1938">
-      <span class="mini-photo round"><img src="images/c0-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1938</span>
-    </button><button class="mini" data-i="1" aria-label="View Jefferson Nickel (modern obverse) 1938-D">
-      <span class="mini-photo round"><img src="images/c1-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1938-D</span>
-    </button><button class="mini" data-i="2" aria-label="View Jefferson Nickel 1938-S">
-      <span class="mini-photo round"><img src="images/c2-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1938-S</span>
-    </button><button class="mini" data-i="30" aria-label="View Jefferson Nickel 1939">
-      <span class="mini-photo round"><img src="images/c30-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1939</span>
-    </button><button class="mini" data-i="3" aria-label="View Jefferson Nickel 1939-D">
-      <span class="mini-photo round"><img src="images/c3-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1939-D</span>
-    </button><button class="mini" data-i="4" aria-label="View Jefferson Nickel 1941">
-      <span class="mini-photo round"><img src="images/c4-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1941</span>
-    </button><button class="mini" data-i="5" aria-label="View Jefferson Nickel 1942-P">
-      <span class="mini-photo round"><img src="images/c5-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1942-P</span>
-    </button><button class="mini" data-i="31" aria-label="View Jefferson Nickel (Wartime Silver Alloy) 1942-S">
-      <span class="mini-photo round"><img src="images/c31-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1942-S</span>
-    </button><button class="mini" data-i="7" aria-label="View Jefferson Nickel 1943-P">
-      <span class="mini-photo round"><img src="images/c7-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1943-P</span>
-    </button><button class="mini" data-i="6" aria-label="View Jefferson Nickel 1943-D">
+        <div class="mini-grid"><button class="mini" data-i="6" aria-label="View Jefferson Nickel 1938-P">
       <span class="mini-photo round"><img src="images/c6-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1943-D</span>
-    </button><button class="mini" data-i="8" aria-label="View Jefferson Nickel 1943-S">
+      <span class="mini-ym">1938-P</span>
+    </button><button class="mini" data-i="5" aria-label="View Jefferson Nickel (modern obverse) 1938-D">
+      <span class="mini-photo round"><img src="images/c5-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1938-D</span>
+    </button><button class="mini" data-i="7" aria-label="View Jefferson Nickel 1938-S">
+      <span class="mini-photo round"><img src="images/c7-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1938-S</span>
+    </button><button class="mini" data-i="65" aria-label="View Jefferson Nickel 1939-P">
+      <span class="mini-photo round"><img src="images/c65-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1939-P</span>
+    </button><button class="mini" data-i="8" aria-label="View Jefferson Nickel 1939-D">
       <span class="mini-photo round"><img src="images/c8-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1943-S</span>
-    </button><button class="mini" data-i="10" aria-label="View Jefferson Nickel 1944-P">
-      <span class="mini-photo round"><img src="images/c10-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1944-P</span>
-    </button><button class="mini" data-i="9" aria-label="View Jefferson Nickel 1944-D">
+      <span class="mini-ym">1939-D</span>
+    </button><button class="mini" data-i="9" aria-label="View Jefferson Nickel 1939-S">
       <span class="mini-photo round"><img src="images/c9-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1944-D</span>
-    </button><button class="mini" data-i="11" aria-label="View Jefferson Nickel 1944-S">
+      <span class="mini-ym">1939-S</span>
+    </button><button class="mini" data-i="10" aria-label="View Jefferson Nickel 1941">
+      <span class="mini-photo round"><img src="images/c10-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1941</span>
+    </button><button class="mini" data-i="11" aria-label="View Jefferson Nickel 1942-P">
       <span class="mini-photo round"><img src="images/c11-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1944-S</span>
-    </button><button class="mini" data-i="13" aria-label="View Jefferson Nickel 1945-P">
+      <span class="mini-ym">1942-P</span>
+    </button><button class="mini" data-i="66" aria-label="View Jefferson Nickel (Wartime Silver Alloy) 1942-S">
+      <span class="mini-photo round"><img src="images/c66-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1942-S</span>
+    </button><button class="mini" data-i="13" aria-label="View Jefferson Nickel 1943-P">
       <span class="mini-photo round"><img src="images/c13-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1945-P</span>
-    </button><button class="mini" data-i="12" aria-label="View Jefferson Nickel 1945-D">
+      <span class="mini-ym">1943-P</span>
+    </button><button class="mini" data-i="12" aria-label="View Jefferson Nickel 1943-D">
       <span class="mini-photo round"><img src="images/c12-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1945-D</span>
-    </button><button class="mini" data-i="14" aria-label="View Jefferson Nickel 1945-S">
+      <span class="mini-ym">1943-D</span>
+    </button><button class="mini" data-i="14" aria-label="View Jefferson Nickel 1943-S">
       <span class="mini-photo round"><img src="images/c14-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1945-S</span>
-    </button><button class="mini" data-i="15" aria-label="View Jefferson Nickel 1946">
-      <span class="mini-photo round"><img src="images/c15-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1946</span>
-    </button><button class="mini" data-i="16" aria-label="View Jefferson Nickel 1946-D">
+      <span class="mini-ym">1943-S</span>
+    </button><button class="mini" data-i="16" aria-label="View Jefferson Nickel 1944-P">
       <span class="mini-photo round"><img src="images/c16-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1946-D</span>
-    </button><button class="mini" data-i="17" aria-label="View Jefferson Nickel 1947">
+      <span class="mini-ym">1944-P</span>
+    </button><button class="mini" data-i="15" aria-label="View Jefferson Nickel 1944-D">
+      <span class="mini-photo round"><img src="images/c15-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1944-D</span>
+    </button><button class="mini" data-i="17" aria-label="View Jefferson Nickel 1944-S">
       <span class="mini-photo round"><img src="images/c17-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1947</span>
-    </button><button class="mini" data-i="18" aria-label="View Jefferson Nickel 1947-D">
-      <span class="mini-photo round"><img src="images/c18-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1947-D</span>
-    </button><button class="mini" data-i="19" aria-label="View Jefferson Nickel 1948">
+      <span class="mini-ym">1944-S</span>
+    </button><button class="mini" data-i="19" aria-label="View Jefferson Nickel 1945-P">
       <span class="mini-photo round"><img src="images/c19-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1948</span>
-    </button><button class="mini" data-i="20" aria-label="View Jefferson Nickel 1948-D">
+      <span class="mini-ym">1945-P</span>
+    </button><button class="mini" data-i="18" aria-label="View Jefferson Nickel 1945-D">
+      <span class="mini-photo round"><img src="images/c18-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1945-D</span>
+    </button><button class="mini" data-i="20" aria-label="View Jefferson Nickel 1945-S">
       <span class="mini-photo round"><img src="images/c20-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1948-D</span>
-    </button><button class="mini" data-i="21" aria-label="View Jefferson Nickel 1948-S">
-      <span class="mini-photo round"><img src="images/c21-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1948-S</span>
-    </button><button class="mini" data-i="22" aria-label="View Jefferson Nickel 1949">
+      <span class="mini-ym">1945-S</span>
+    </button><button class="mini" data-i="22" aria-label="View Jefferson Nickel 1946-P">
       <span class="mini-photo round"><img src="images/c22-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1949</span>
-    </button><button class="mini" data-i="23" aria-label="View Jefferson Nickel 1951-S">
-      <span class="mini-photo round"><img src="images/c23-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1951-S</span>
-    </button><button class="mini" data-i="24" aria-label="View Jefferson Nickel 1952">
+      <span class="mini-ym">1946-P</span>
+    </button><button class="mini" data-i="21" aria-label="View Jefferson Nickel 1946-D">
+      <span class="mini-photo round"><img src="images/c21-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1946-D</span>
+    </button><button class="mini" data-i="24" aria-label="View Jefferson Nickel 1947-P">
       <span class="mini-photo round"><img src="images/c24-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1952</span>
-    </button><button class="mini" data-i="25" aria-label="View Jefferson Nickel 1952-D">
-      <span class="mini-photo round"><img src="images/c25-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1952-D</span>
-    </button><button class="mini" data-i="26" aria-label="View Jefferson Nickel 1952-S">
+      <span class="mini-ym">1947-P</span>
+    </button><button class="mini" data-i="23" aria-label="View Jefferson Nickel 1947-D">
+      <span class="mini-photo round"><img src="images/c23-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1947-D</span>
+    </button><button class="mini" data-i="26" aria-label="View Jefferson Nickel 1948-P">
       <span class="mini-photo round"><img src="images/c26-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1952-S</span>
-    </button><button class="mini" data-i="27" aria-label="View Jefferson Nickel 1953">
+      <span class="mini-ym">1948-P</span>
+    </button><button class="mini" data-i="25" aria-label="View Jefferson Nickel 1948-D">
+      <span class="mini-photo round"><img src="images/c25-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1948-D</span>
+    </button><button class="mini" data-i="27" aria-label="View Jefferson Nickel 1948-S">
       <span class="mini-photo round"><img src="images/c27-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1953</span>
-    </button><button class="mini" data-i="29" aria-label="View Jefferson Nickel 1953-D">
-      <span class="mini-photo round"><img src="images/c29-0.jpg" alt="" loading="lazy"></span>
-      <span class="mini-ym">1953-D</span>
-    </button><button class="mini" data-i="28" aria-label="View Jefferson Nickel 1953-S">
+      <span class="mini-ym">1948-S</span>
+    </button><button class="mini" data-i="28" aria-label="View Jefferson Nickel 1949-P">
       <span class="mini-photo round"><img src="images/c28-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1949-P</span>
+    </button><button class="mini" data-i="29" aria-label="View Jefferson Nickel 1951-S">
+      <span class="mini-photo round"><img src="images/c29-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1951-S</span>
+    </button><button class="mini" data-i="31" aria-label="View Jefferson Nickel 1952-P">
+      <span class="mini-photo round"><img src="images/c31-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1952-P</span>
+    </button><button class="mini" data-i="30" aria-label="View Jefferson Nickel 1952-D">
+      <span class="mini-photo round"><img src="images/c30-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1952-D</span>
+    </button><button class="mini" data-i="32" aria-label="View Jefferson Nickel 1952-S">
+      <span class="mini-photo round"><img src="images/c32-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1952-S</span>
+    </button><button class="mini" data-i="33" aria-label="View Jefferson Nickel 1953-P">
+      <span class="mini-photo round"><img src="images/c33-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1953-P</span>
+    </button><button class="mini" data-i="64" aria-label="View Jefferson Nickel 1953-D">
+      <span class="mini-photo round"><img src="images/c64-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1953-D</span>
+    </button><button class="mini" data-i="34" aria-label="View Jefferson Nickel 1953-S">
+      <span class="mini-photo round"><img src="images/c34-0.jpg" alt="" loading="lazy"></span>
       <span class="mini-ym">1953-S</span>
+    </button><button class="mini" data-i="35" aria-label="View Jefferson Nickel 1954-D">
+      <span class="mini-photo round"><img src="images/c35-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1954-D</span>
+    </button><button class="mini" data-i="36" aria-label="View Jefferson Nickel 1954-S">
+      <span class="mini-photo round"><img src="images/c36-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1954-S</span>
+    </button><button class="mini" data-i="38" aria-label="View Jefferson Nickel 1955-P">
+      <span class="mini-photo round"><img src="images/c38-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1955-P</span>
+    </button><button class="mini" data-i="37" aria-label="View Jefferson Nickel 1955-D">
+      <span class="mini-photo round"><img src="images/c37-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1955-D</span>
+    </button><button class="mini" data-i="40" aria-label="View Jefferson Nickel 1956-P">
+      <span class="mini-photo round"><img src="images/c40-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1956-P</span>
+    </button><button class="mini" data-i="39" aria-label="View Jefferson Nickel 1956-D">
+      <span class="mini-photo round"><img src="images/c39-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1956-D</span>
+    </button><button class="mini" data-i="42" aria-label="View Jefferson Nickel 1957-P">
+      <span class="mini-photo round"><img src="images/c42-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1957-P</span>
+    </button><button class="mini" data-i="41" aria-label="View Jefferson Nickel 1957-D">
+      <span class="mini-photo round"><img src="images/c41-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1957-D</span>
+    </button><button class="mini" data-i="44" aria-label="View Jefferson Nickel 1958-P">
+      <span class="mini-photo round"><img src="images/c44-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1958-P</span>
+    </button><button class="mini" data-i="43" aria-label="View Jefferson Nickel 1958-D">
+      <span class="mini-photo round"><img src="images/c43-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1958-D</span>
+    </button><button class="mini" data-i="47" aria-label="View Jefferson Nickel 1959-P">
+      <span class="mini-photo round"><img src="images/c47-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1959-P</span>
+    </button><button class="mini" data-i="45" aria-label="View Jefferson Nickel 1959">
+      <span class="mini-photo round"><img src="images/c45-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1959</span>
+    </button><button class="mini" data-i="46" aria-label="View Jefferson Nickel 1959-D">
+      <span class="mini-photo round"><img src="images/c46-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1959-D</span>
+    </button><button class="mini" data-i="48" aria-label="View Jefferson Nickel 1960-D">
+      <span class="mini-photo round"><img src="images/c48-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1960-D</span>
+    </button><button class="mini" data-i="50" aria-label="View Jefferson Nickel 1961-P">
+      <span class="mini-photo round"><img src="images/c50-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1961-P</span>
+    </button><button class="mini" data-i="49" aria-label="View Jefferson Nickel 1961-D">
+      <span class="mini-photo round"><img src="images/c49-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1961-D</span>
+    </button><button class="mini" data-i="52" aria-label="View Jefferson Nickel 1962-P">
+      <span class="mini-photo round"><img src="images/c52-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1962-P</span>
+    </button><button class="mini" data-i="51" aria-label="View Jefferson Nickel 1962-D">
+      <span class="mini-photo round"><img src="images/c51-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1962-D</span>
+    </button><button class="mini" data-i="54" aria-label="View Jefferson Nickel 1963-P">
+      <span class="mini-photo round"><img src="images/c54-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1963-P</span>
+    </button><button class="mini" data-i="53" aria-label="View Jefferson Nickel 1963-D">
+      <span class="mini-photo round"><img src="images/c53-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1963-D</span>
+    </button><button class="mini" data-i="56" aria-label="View Jefferson Nickel 1964-P">
+      <span class="mini-photo round"><img src="images/c56-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1964-P</span>
+    </button><button class="mini" data-i="55" aria-label="View Jefferson Nickel 1964-D">
+      <span class="mini-photo round"><img src="images/c55-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1964-D</span>
+    </button><button class="mini" data-i="57" aria-label="View Jefferson Nickel 1965-P">
+      <span class="mini-photo round"><img src="images/c57-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1965-P</span>
+    </button><button class="mini" data-i="58" aria-label="View Jefferson Nickel 1966-P">
+      <span class="mini-photo round"><img src="images/c58-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1966-P</span>
+    </button><button class="mini" data-i="59" aria-label="View Jefferson Nickel 1967-P">
+      <span class="mini-photo round"><img src="images/c59-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1967-P</span>
+    </button><button class="mini" data-i="62" aria-label="View Jefferson Nickel - American Bison 2005-P">
+      <span class="mini-photo round"><img src="images/c62-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2005-P</span>
+    </button><button class="mini" data-i="60" aria-label="View Jefferson Nickel - American Bison 2005-D">
+      <span class="mini-photo round"><img src="images/c60-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2005-D</span>
+    </button><button class="mini" data-i="61" aria-label="View Jefferson Nickel - American Bison 2005-D">
+      <span class="mini-photo round"><img src="images/c61-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2005-D</span>
+    </button><button class="mini" data-i="63" aria-label="View Jefferson Nickel — American Bison 2005-S">
+      <span class="mini-photo round"><img src="images/c63-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2005-S</span>
+    </button></div>
+      </div>
+    </section>
+<section class="group" data-g="1">
+      <button class="group-head" aria-expanded="false" aria-controls="grp1">
+        <span class="covers"><span class="cover round"><img src="images/c4-0.jpg" alt="" loading="lazy"></span></span>
+        <span class="group-text">
+          <span class="group-name">Flying Eagle Cents</span>
+          <span class="group-sub">1 of 4 · 25% complete</span>
+          <span class="group-bar"><i style="width:25%"></i></span>
+        </span>
+        <span class="group-chev" aria-hidden="true">▸</span>
+      </button>
+      <div class="group-body" id="grp1" hidden>
+        <div class="mini-grid"><button class="mini" data-i="4" aria-label="View Flying Eagle Cent 1857">
+      <span class="mini-photo round"><img src="images/c4-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1857</span>
+    </button></div>
+      </div>
+    </section>
+<section class="group" data-g="2">
+      <button class="group-head" aria-expanded="false" aria-controls="grp2">
+        <span class="covers"><span class="cover round"><img src="images/c67-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c68-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c69-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c70-0.jpg" alt="" loading="lazy"></span></span>
+        <span class="group-text">
+          <span class="group-name">Lincoln Cent</span>
+          <span class="group-sub">4 of 123 · 3% complete</span>
+          <span class="group-bar"><i style="width:3%"></i></span>
+        </span>
+        <span class="group-chev" aria-hidden="true">▸</span>
+      </button>
+      <div class="group-body" id="grp2" hidden>
+        <div class="mini-grid"><button class="mini" data-i="67" aria-label="View Lincoln Memorial Cent 1966">
+      <span class="mini-photo round"><img src="images/c67-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1966</span>
+    </button><button class="mini" data-i="68" aria-label="View Lincoln Memorial Cent 1974-D">
+      <span class="mini-photo round"><img src="images/c68-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1974-D</span>
+    </button><button class="mini" data-i="69" aria-label="View Lincoln Memorial Cent 1978-D">
+      <span class="mini-photo round"><img src="images/c69-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1978-D</span>
+    </button><button class="mini" data-i="70" aria-label="View Lincoln Memorial Cent 1980">
+      <span class="mini-photo round"><img src="images/c70-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">1980</span>
+    </button></div>
+      </div>
+    </section>
+<section class="group" data-g="3">
+      <button class="group-head" aria-expanded="false" aria-controls="grp3">
+        <span class="covers"><span class="cover round"><img src="images/c3-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c0-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c1-0.jpg" alt="" loading="lazy"></span><span class="cover round"><img src="images/c2-0.jpg" alt="" loading="lazy"></span></span>
+        <span class="group-text">
+          <span class="group-name">American Silver Eagles</span>
+          <span class="group-sub">1 of 41 · 2% complete</span>
+          <span class="group-bar"><i style="width:2%"></i></span>
+        </span>
+        <span class="group-chev" aria-hidden="true">▸</span>
+      </button>
+      <div class="group-body" id="grp3" hidden>
+        <div class="mini-grid"><button class="mini" data-i="3" aria-label="View American Silver Eagle 2024-W">
+      <span class="mini-photo round"><img src="images/c3-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2024-W</span>
+    </button><button class="mini" data-i="0" aria-label="View American Silver Eagle 2024">
+      <span class="mini-photo round"><img src="images/c0-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2024</span>
+    </button><button class="mini" data-i="1" aria-label="View American Silver Eagle 2024">
+      <span class="mini-photo round"><img src="images/c1-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2024</span>
+    </button><button class="mini" data-i="2" aria-label="View American Silver Eagle 2024">
+      <span class="mini-photo round"><img src="images/c2-0.jpg" alt="" loading="lazy"></span>
+      <span class="mini-ym">2024</span>
     </button></div>
       </div>
     </section>
@@ -1296,7 +1717,7 @@ body { padding-bottom: 40px; }
   </div>
 </div>
 <script>
-const DATA = [{"n":"Jefferson Nickel","y":1938,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"75% copper, 25% nickel","w":5,"dm":21.2,"e":"plain","q":1,"no":"Handwritten dealer flip; grade descriptor 'BG' written upper right","im":["images/c0-0.jpg","images/c0-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (modern obverse)","y":1938,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","q":1,"no":"Buy","im":["images/c1-0.jpg","images/c1-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1938,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated); handwritten label includes markings after mint mark F that are partially unclear, possibly 'ES' or similar","im":["images/c2-0.jpg","images/c2-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c3-0.jpg","images/c3-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1941,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c4-0.jpg","images/c4-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1942,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"im":["images/c5-0.jpg","images/c5-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c6-0.jpg","images/c6-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c7-0.jpg","images/c7-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c8-0.jpg","images/c8-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c9-0.jpg","images/c9-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c10-0.jpg","images/c10-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c11-0.jpg","images/c11-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c12-0.jpg","images/c12-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c13-0.jpg","images/c13-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"im":["images/c14-0.jpg","images/c14-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1946,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c15-0.jpg","images/c15-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1946,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated - condition descriptor)","im":["images/c16-0.jpg","images/c16-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1947,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c17-0.jpg","images/c17-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1947,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated descriptor)","im":["images/c18-0.jpg","images/c18-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c19-0.jpg","images/c19-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c20-0.jpg","images/c20-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated — condition descriptor)","im":["images/c21-0.jpg","images/c21-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1949,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"Handwritten label on 2x2 flip: '1949' on left, 'B44' on right","im":["images/c22-0.jpg","images/c22-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1951,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated condition descriptor)","im":["images/c23-0.jpg","images/c23-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c24-0.jpg","images/c24-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c25-0.jpg","images/c25-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c26-0.jpg","images/c26-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU","im":["images/c27-0.jpg","images/c27-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel","w":5,"dm":21.21,"e":"plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c28-0.jpg","images/c28-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"D","s":"Jefferson Nickel (1938-2004, pre-Westward Journey)","co":"United States","d":"5 cents","cp":"75% copper, 25% nickel","w":5,"dm":21.2,"e":"plain","q":1,"no":"BU","im":["images/c29-0.jpg","images/c29-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"s":"Jefferson Nickel (Monticello reverse, pre-war composition)","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% copper, 25% nickel)","w":5,"dm":21.2,"e":"plain","q":1,"no":"BU (Business Uncirculated grade descriptor)","im":["images/c30-0.jpg","images/c30-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"S","s":"Jefferson Nickel, Wartime Silver","co":"United States","d":"5 Cents","cp":"56% copper, 35% silver, 9% manganese","w":5,"dm":21.2,"e":"plain","q":1,"im":["images/c31-0.jpg","images/c31-1.jpg"],"r":[true,true]}];
+const DATA = [{"n":"American Silver Eagle","y":2024,"g":"MS-70","s":"American Silver Eagle","co":"United States","d":"Dollar","cp":"99.9% silver","w":31.1,"dm":40.6,"e":"Reeded","q":1,"no":"NGC holographic label; gradient rainbow effect obscures most printed text; QR code visible","im":["images/c0-0.jpg","images/c0-1.jpg"],"r":[true,true],"dg":"First Day of Issue"},{"n":"American Silver Eagle","y":2024,"g":"MS-70","s":"American Silver Eagle","co":"United States","d":"Dollar","cp":"99.9% silver","w":31.1,"dm":40.6,"e":"Reeded","q":1,"no":"NGC slab with holographic security sticker insert; QR code and website visible but certification details obscured by gradient hologram","im":["images/c1-0.jpg","images/c1-1.jpg"],"r":[true,true],"dg":"First Day of Issue"},{"n":"American Silver Eagle","y":2024,"g":"MS-70","s":"American Silver Eagle","co":"United States","d":"Dollar","cp":"99.9% silver","w":31.1,"dm":40.6,"e":"Reeded","q":1,"no":"Printed as '2024 Eagles $1'","im":["images/c2-0.jpg","images/c2-1.jpg"],"r":[true,true],"dg":"First Day of Issue"},{"n":"American Silver Eagle","y":2024,"m":"W","g":"MS-70","s":"American Silver Eagle","co":"United States","d":"Dollar","cp":"99.9% silver","w":31.1,"dm":40.6,"e":"Reeded","q":1,"no":"Barcode visible on label Purchase price recorded as the U.S. Mint's 2024-W Uncirculated issue price ($76, released 2024-06-06) - the exact amount paid was not remembered, so this is the issue price, not a receipt. Grading/FDI submission costs are not included.","im":["images/c3-0.jpg","images/c3-1.jpg"],"r":[true,true],"dg":"First Day of Issue"},{"n":"Flying Eagle Cent","y":1857,"s":"Flying Eagle Cent (1856-1858)","co":"United States","d":"1 Cent","cp":"Copper-nickel (75% Cu, 25% Ni)","w":4.67,"dm":19.05,"e":"Plain","q":1,"im":["images/c4-0.jpg","images/c4-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (modern obverse)","y":1938,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Buy","im":["images/c5-0.jpg","images/c5-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1938,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.2,"e":"Plain","q":1,"no":"Handwritten dealer flip; grade descriptor 'BG' written upper right","im":["images/c6-0.jpg","images/c6-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1938,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated); handwritten label includes markings after mint mark F that are partially unclear, possibly 'ES' or similar","im":["images/c7-0.jpg","images/c7-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c8-0.jpg","images/c8-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c9-0.jpg","images/c9-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1941,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c10-0.jpg","images/c10-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1942,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.2,"e":"Plain","q":1,"im":["images/c11-0.jpg","images/c11-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c12-0.jpg","images/c12-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c13-0.jpg","images/c13-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1943,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c14-0.jpg","images/c14-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c15-0.jpg","images/c15-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c16-0.jpg","images/c16-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1944,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c17-0.jpg","images/c17-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c18-0.jpg","images/c18-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c19-0.jpg","images/c19-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1945,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c20-0.jpg","images/c20-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1946,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated - condition descriptor)","im":["images/c21-0.jpg","images/c21-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1946,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c22-0.jpg","images/c22-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1947,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated descriptor)","im":["images/c23-0.jpg","images/c23-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1947,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU","im":["images/c24-0.jpg","images/c24-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c25-0.jpg","images/c25-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU","im":["images/c26-0.jpg","images/c26-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1948,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated — condition descriptor)","im":["images/c27-0.jpg","images/c27-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1949,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Handwritten label on 2x2 flip: '1949' on left, 'B44' on right","im":["images/c28-0.jpg","images/c28-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1951,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated condition descriptor)","im":["images/c29-0.jpg","images/c29-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c30-0.jpg","images/c30-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU","im":["images/c31-0.jpg","images/c31-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1952,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c32-0.jpg","images/c32-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU","im":["images/c33-0.jpg","images/c33-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c34-0.jpg","images/c34-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1954,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.2,"e":"Plain","q":1,"no":"Handwritten label on 2x2 flip. Mint or variety notation reads as 'T-D' (or possibly 'S-D' — first letter is ambiguous in handwriting). 'BU' = Brilliant Uncirculated.","im":["images/c35-0.jpg","images/c35-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1954,"m":"S","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c36-0.jpg","images/c36-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1955,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c37-0.jpg","images/c37-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1955,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c38-0.jpg","images/c38-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1956,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c39-0.jpg","images/c39-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1956,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated condition descriptor)","im":["images/c40-0.jpg","images/c40-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1957,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated); 2x2 cardboard flip","im":["images/c41-0.jpg","images/c41-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1957,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated — dealer descriptor)","im":["images/c42-0.jpg","images/c42-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1958,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Bu","im":["images/c43-0.jpg","images/c43-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1958,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated) - dealer condition descriptor","im":["images/c44-0.jpg","images/c44-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1959,"s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c45-0.jpg","images/c45-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1959,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU","im":["images/c46-0.jpg","images/c46-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1959,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c47-0.jpg","images/c47-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1960,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c48-0.jpg","images/c48-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1961,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c49-0.jpg","images/c49-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1961,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"im":["images/c50-0.jpg","images/c50-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1962,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"B9","im":["images/c51-0.jpg","images/c51-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1962,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c52-0.jpg","images/c52-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1963,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c53-0.jpg","images/c53-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1963,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated condition descriptor)","im":["images/c54-0.jpg","images/c54-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1964,"m":"D","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c55-0.jpg","images/c55-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1964,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated)","im":["images/c56-0.jpg","images/c56-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1965,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Handwritten on 2x2 flip; right side shows 'BU4' or 'B64' (middle character ambiguous in quick handwriting — likely 'BU4' for Business Uncirculated)","im":["images/c57-0.jpg","images/c57-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1966,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU","im":["images/c58-0.jpg","images/c58-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1967,"m":"P","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Business Uncirculated)","im":["images/c59-0.jpg","images/c59-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"D","f":"Satin (SMS)","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"BU (Brilliant Uncirculated), Satin Finish, Nickel, Mintage: 1,160,000","im":["images/c60-0.jpg","images/c60-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"D","f":"Business Strike","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Choice BU, Non-PVC Coin Flip, dealer: www.davescoins.com","im":["images/c61-0.jpg","images/c61-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel - American Bison","y":2005,"m":"P","f":"Business Strike","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Choice BU, Non-PVC Coin Flip, davescoins.com","im":["images/c62-0.jpg","images/c62-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel — American Bison","y":2005,"m":"S","f":"Proof","g":"Proof","s":"Jefferson Nickel","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.21,"e":"Plain","q":1,"no":"Gem DCam, Non-PVC Coin Flip, Mintage: 3,344,679, www.davescoins.com","im":["images/c63-0.jpg","images/c63-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1953,"m":"D","s":"Jefferson Nickel (1938-2004, pre-Westward Journey)","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.2,"e":"Plain","q":1,"no":"BU","im":["images/c64-0.jpg","images/c64-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel","y":1939,"m":"P","s":"Jefferson Nickel (Monticello reverse, pre-war composition)","co":"United States","d":"5 Cents","cp":"Copper-nickel (75% Cu, 25% Ni)","w":5,"dm":21.2,"e":"Plain","q":1,"no":"BU (Business Uncirculated grade descriptor)","im":["images/c65-0.jpg","images/c65-1.jpg"],"r":[true,true]},{"n":"Jefferson Nickel (Wartime Silver Alloy)","y":1942,"m":"S","s":"Jefferson Nickel, Wartime Silver","co":"United States","d":"5 Cents","cp":"35% silver (wartime)","w":5,"dm":21.2,"e":"Plain","q":1,"im":["images/c66-0.jpg","images/c66-1.jpg"],"r":[true,true]},{"n":"Lincoln Memorial Cent","y":1966,"s":"Lincoln Cent","co":"United States","d":"1 Cent","cp":"Bronze (95% Cu, 5% Sn+Zn)","w":2.5,"dm":19.05,"e":"Plain","q":1,"im":["images/c67-0.jpg","images/c67-1.jpg"],"r":[true,true]},{"n":"Lincoln Memorial Cent","y":1974,"m":"D","s":"Lincoln Cent","co":"United States","d":"1 Cent","cp":"Bronze (95% Cu, 5% Sn+Zn)","w":3.11,"dm":19.05,"e":"Plain","q":1,"im":["images/c68-0.jpg","images/c68-1.jpg"],"r":[true,true]},{"n":"Lincoln Memorial Cent","y":1978,"m":"D","s":"Lincoln Cent","co":"United States","d":"1 Cent","cp":"Bronze (95% Cu, 5% Sn+Zn)","w":2.5,"dm":19.05,"e":"Plain","q":1,"im":["images/c69-0.jpg","images/c69-1.jpg"],"r":[true,true]},{"n":"Lincoln Memorial Cent","y":1980,"s":"Lincoln Cent","co":"United States","d":"1 Cent","cp":"Bronze (95% Cu, 5% Sn+Zn)","w":3.11,"dm":19.05,"e":"Plain","q":1,"im":["images/c70-0.jpg","images/c70-1.jpg"],"r":[true,true]}];
 const $ = id => document.getElementById(id);
 // expand/collapse a collection; the first one starts open so the album isn't a wall of closed doors
 document.querySelectorAll('.group').forEach((g, i) => {
@@ -1310,7 +1731,7 @@ function openV(i) {
   $('vName').textContent = c.n;
   $('vFront').src = c.im[0]; $('vFront').classList.toggle('round', !!(c.r && c.r[0]));
   if (c.im[1]) { $('vBack').src = c.im[1]; $('vBack').style.display = ''; $('vBack').classList.toggle('round', !!(c.r && c.r[1])); } else $('vBack').style.display = 'none';
-  const rows = [['Year', [c.y, c.m].filter(Boolean).join('-')], ['Finish', c.f], ['Grade', c.g], ['Series', c.s], ['Country', c.co], ['Denomination', c.d], ['Composition', c.cp], ['Weight', c.w ? c.w + ' g' : ''], ['Diameter', c.dm ? c.dm + ' mm' : ''], ['Edge', c.e], ['Quantity', c.q > 1 ? '×' + c.q : ''], ['Notes', c.no]];
+  const rows = [['Year', [c.y, c.m].filter(Boolean).join('-')], ['Finish', c.f], ['Grade', c.g], ['Designation', c.dg], ['Series', c.s], ['Country', c.co], ['Denomination', c.d], ['Composition', c.cp], ['Weight', c.w ? c.w + ' g' : ''], ['Diameter', c.dm ? c.dm + ' mm' : ''], ['Edge', c.e], ['Quantity', c.q > 1 ? '×' + c.q : ''], ['Notes', c.no]];
   $('vSpecs').innerHTML = rows.filter(r => r[1]).map(r => '<tr' + (r[0] === 'Notes' ? ' class="notes-row"' : '') + '><td>' + r[0] + '</td><td>' + String(r[1]).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</td></tr>').join('');
   $('viewer').classList.add('open');
 }
